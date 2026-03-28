@@ -732,7 +732,7 @@ function get_trainer_poks(trainer_name) {
 		if (oppSet && wsNameOk) {
 			var ws = [];
 			var slot = 0;
-			$("#team-poke-list .trainer-pok-slot").each(function () {
+			$("#team-poke-list .trainer-pok.left-side").each(function () {
 				var id = $(this).attr("data-id");
 				if (!id) return;
 				ws.push("[" + (10000 + slot) + "]" + id);
@@ -811,15 +811,15 @@ function renderTrainerTeamMirrorFromPlayer() {
 		firstContainer.empty();
 		remainingContainer.empty();
 	}
-	var $mons = $("#team-poke-list .trainer-pok-slot");
+	var $mons = $("#team-poke-list .trainer-pok.left-side");
 	var $box = $('<div class="trainer-pok-list-opposing" data-trainer-index="0" data-trainer-name="Wandering Spirit"></div>');
 	var slot = 0;
 	$mons.each(function () {
 		var id = $(this).attr("data-id");
 		if (!id) return;
 		var trTitle = "[" + (10000 + slot) + "]" + id;
-		var $img = $(this).find("img.trainer-pok").first().clone(false);
-		$img.addClass("right-side");
+		var $img = $(this).clone(false);
+		$img.removeClass("left-side").addClass("right-side");
 		$img.attr("title", trTitle + ", " + trTitle + " BP");
 		$box.append($img);
 		slot++;
@@ -2110,19 +2110,13 @@ function addBoxed(poke) {
 		//nothing to do it already exist
 		return
 	}
-	var slot = document.createElement("div");
-	slot.id = `${poke.name}${poke.nameProp}`;
-	slot.className = "trainer-pok-slot left-side";
-	slot.dataset.id = `${poke.name} (${poke.nameProp})`;
-	slot.draggable = true;
-	slot.addEventListener("dragstart", dragstart_handler);
 	var newPoke = document.createElement("img");
-	newPoke.className = "trainer-pok";
-	newPoke.draggable = false;
+	newPoke.id = `${poke.name}${poke.nameProp}`
+	newPoke.className = "trainer-pok left-side";
 	newPoke.src = getSrcImgPokemon(poke);
-	newPoke.dataset.id = `${poke.name} (${poke.nameProp})`;
-	slot.appendChild(newPoke);
-	$('#box-poke-list')[0].appendChild(slot);
+	newPoke.dataset.id = `${poke.name} (${poke.nameProp})`
+	newPoke.addEventListener("dragstart", dragstart_handler);
+	$('#box-poke-list')[0].appendChild(newPoke)
 }
 
 // Arceus: show as Arceus-Fire, Arceus-Fairy, etc. based on plate item
@@ -2229,7 +2223,7 @@ $(document).on('click', '.left-side', function () {
 })
 
 // Right-click: box → team, team → box (same as calc-master)
-$(document).on('contextmenu', '.trainer-pok-slot', function (e) {
+$(document).on('contextmenu', '.trainer-pok.left-side', function (e) {
 	e.preventDefault();
 	var el = e.currentTarget;
 	var parentId = el.parentNode && el.parentNode.id;
@@ -2243,7 +2237,7 @@ $(document).on('contextmenu', '.trainer-pok-slot', function (e) {
 
 //select first mon of the box when loading
 function selectFirstMon() {
-	var pMons = document.querySelectorAll(".trainer-pok-slot.left-side");
+	var pMons = document.getElementsByClassName("trainer-pok left-side");
 	if (pMons.length === 0) return;
 	var set = pMons[0].getAttribute("data-id");
 	$('.player').val(set);
@@ -2360,7 +2354,7 @@ function colorCodeUpdate(){
 	if (!speCheck && !ohkoCheck){
 		return
 	}
-	var pMons = document.querySelectorAll(".trainer-pok-slot.left-side");
+	var pMons = document.getElementsByClassName("trainer-pok left-side");
 	// i calc here to alleviate some calculation
 	var p2info = $("#p2");
 	var p2 = createPokemon(p2info);
@@ -2368,13 +2362,13 @@ function colorCodeUpdate(){
 		let set = pMons[i].getAttribute("data-id");
 		let idColor = calculationsColors(set, p2);
 		if (speCheck && ohkoCheck){
-			pMons[i].className = `trainer-pok-slot left-side mon-speed-${idColor.speed} mon-dmg-${idColor.code}`;
+			pMons[i].className = `trainer-pok left-side mon-speed-${idColor.speed} mon-dmg-${idColor.code}`;
 		}
 		else if (speCheck){
-			pMons[i].className = `trainer-pok-slot left-side mon-speed-${idColor.speed}`;
+			pMons[i].className = `trainer-pok left-side mon-speed-${idColor.speed}`;
 		}
 		else if (ohkoCheck){
-			pMons[i].className = `trainer-pok-slot left-side mon-dmg-${idColor.code}`;
+			pMons[i].className = `trainer-pok left-side mon-dmg-${idColor.code}`;
 		}
 		
 		
@@ -2390,9 +2384,9 @@ function refreshColorCode(){
 }
 
 function hideColorCodes(){
-	var pMons = document.querySelectorAll(".trainer-pok-slot.left-side");
+	var pMons = document.getElementsByClassName("trainer-pok left-side");
 	for (let i = 0; i < pMons.length; i++) {
-		pMons[i].className = "trainer-pok-slot left-side";
+		pMons[i].className = "trainer-pok left-side";
 	}
 	document.getElementById("cc-auto-refr").checked = false;
 	HideShowCCSettings();
@@ -2439,38 +2433,38 @@ function dragstart_handler(ev) {
 
 function drop(ev) {
 	ev.preventDefault();
-	var dz = ev.target.closest && ev.target.closest(".dropzone");
-	var leftSlot = ev.target.closest && ev.target.closest(".trainer-pok-slot.left-side");
-	if (dz && pokeDragged) {
+	if (ev.target.classList.contains("dropzone")) {
 		pokeDragged.parentNode.removeChild(pokeDragged);
-		dz.appendChild(pokeDragged);
+		ev.target.appendChild(pokeDragged);	
 	}
-	else if (leftSlot && pokeDragged) {
-		if (leftSlot.parentNode == pokeDragged.parentNode) {
-			let prev1 = leftSlot.previousSibling || leftSlot;
+	// if it's a pokemon
+	else if(ev.target.classList.contains("left-side")) {
+		//And if a sibling switch them
+		if(ev.target.parentNode == pokeDragged.parentNode){
+			let prev1 = ev.target.previousSibling || ev.target;
 			let prev2 = pokeDragged.previousSibling || pokeDragged;
+
 			prev1.after(pokeDragged);
-			prev2.after(leftSlot);
-		} else {
-			let prev1 = leftSlot.previousSibling || leftSlot;
+			prev2.after(ev.target);
+		}
+		//if not just append to the box it belongs
+		else{
+			let prev1 = ev.target.previousSibling || ev.target;
 			prev1.after(pokeDragged);
 		}
 	}
-	var dzOver = ev.target.closest && ev.target.closest(".dropzone");
-	if (dzOver) dzOver.classList.remove("over");
+	ev.target.classList.remove('over');
 	if (typeof MutationObserver === "undefined") {
 		refreshOpposingTeamIfWanderingSpirit();
 	}
 }
 
 function handleDragEnter(ev) {
-	var dz = ev.target.closest && ev.target.closest(".dropzone");
-	if (dz) dz.classList.add("over");
+	ev.target.classList.add('over');
 }
 
 function handleDragLeave(ev) {
-	var dz = ev.target.closest && ev.target.closest(".dropzone");
-	if (dz) dz.classList.remove("over");
+	ev.target.classList.remove('over');
 }
 
 function SpeedBorderSetsChange(ev){
@@ -2635,7 +2629,7 @@ $(document).ready(function () {
 		var t = parseInt(last, 10);
 		if (!isNaN(t)) selectTrainer(t);
 	}
-	// Icon size slider: 50–100 -> 32px–64px (min = half of max).
+	// Icon size slider: 50–100 -> 32px–64px (min = 1/2 of max)
 	var iconSlider = document.getElementById("icon-size-slider");
 	if (iconSlider) {
 		var minVal = 50, maxVal = 100;

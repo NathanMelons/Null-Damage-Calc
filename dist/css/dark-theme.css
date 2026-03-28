@@ -243,7 +243,3 @@ div.info-group.info-selectors.i-f-o-stats .info-selector-row select {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
-
-.icon-size-overlay input[type="range"] {
-    --icon-track-bg: #4b5563;
-}
