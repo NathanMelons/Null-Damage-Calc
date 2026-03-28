@@ -295,12 +295,12 @@ fieldset.opposing-team-box:has(#trainer-poks-remaining .trainer-pok-list-opposin
     display: block;
     flex-shrink: 0;
     margin: 0;
-    border-radius: 6px;
+    /* Smaller radii at small --box-icon-size so corners don’t soften the whole bitmap */
+    border-radius: min(6px, calc(var(--box-icon-size, 64px) * 0.12));
     cursor: pointer;
     box-sizing: border-box;
-    /* Nearest-neighbor when scaling pixel sprites (esp. below 64px); pixelated must be last — webkit-optimize-contrast overrides it and blurs */
+    /* Nearest-neighbor: do not use -webkit-optimize-contrast after pixelated — it wins in WebKit and blurs. Order: legacy → crisp-edges → pixelated (standard). */
     -ms-interpolation-mode: nearest-neighbor;
-    image-rendering: -webkit-optimize-contrast;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
     image-rendering: pixelated;

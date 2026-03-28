@@ -2636,8 +2636,9 @@ $(document).ready(function () {
 		var minPx = 32, maxPx = 64;
 		function setIconSize(val) {
 			var px = Math.round(minPx + (val - minVal) / (maxVal - minVal) * (maxPx - minPx));
-			/* Even pixel sizes reduce subpixel blur when downscaling sprites */
+			/* Even sizes + 4px grid: aligns box to device pixels and cleaner NN downscale */
 			px = px & ~1;
+			px = Math.round(px / 4) * 4;
 			if (px < minPx) px = minPx;
 			if (px > maxPx) px = maxPx;
 			document.documentElement.style.setProperty("--box-icon-size", px + "px");
