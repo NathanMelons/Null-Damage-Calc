@@ -283,29 +283,65 @@ fieldset.opposing-team-box:has(#trainer-poks-remaining .trainer-pok-list-opposin
 .trainer-pok-list-opposing {
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-start;
     gap: 3px;
 }
 
-.trainer-pok {
-    /* Square box + contain avoids blurry width:auto scaling at small sizes */
+/* Team/Box/Trash: gradients (OHKO) + speed outlines live on .trainer-pok-slot so the <img> is a single raster layer (sharp at small sizes). */
+.trainer-pok-slot {
+    flex: 0 0 var(--box-icon-size, 64px);
+    align-self: flex-start;
+    width: var(--box-icon-size, 64px);
+    height: var(--box-icon-size, 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin: 0;
+    box-sizing: border-box;
+    border-radius: min(6px, calc(var(--box-icon-size, 64px) / 3));
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.trainer-pok-slot > .trainer-pok {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    -ms-interpolation-mode: nearest-neighbor;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+.trainer-pok.right-side {
+    flex: 0 0 var(--box-icon-size, 64px);
+    align-self: flex-start;
     width: var(--box-icon-size, 64px);
     height: var(--box-icon-size, 64px);
     object-fit: contain;
     display: block;
     flex-shrink: 0;
     margin: 0;
-    border-radius: 6px;
+    border-radius: min(6px, calc(var(--box-icon-size, 64px) / 3));
     cursor: pointer;
     box-sizing: border-box;
-    /* Nearest-neighbor when scaling pixel sprites (esp. below 64px) */
     -ms-interpolation-mode: nearest-neighbor;
-    image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
 }
 
-.trainer-pok:hover {
+.trainer-pok.right-side:hover {
+    outline: 2px solid #1abc9c;
+    outline-offset: -2px;
+}
+
+.trainer-pok-slot:hover {
     outline: 2px solid #1abc9c;
     outline-offset: -2px;
 }
@@ -316,6 +352,7 @@ fieldset.opposing-team-box:has(#trainer-poks-remaining .trainer-pok-list-opposin
 }
 
 .trainer-pok.trainer-gap-slot {
+    flex: 0 0 var(--box-icon-size, 64px);
     width: var(--box-icon-size, 64px);
     pointer-events: none;
     opacity: 0;
@@ -1160,6 +1197,7 @@ table.field {
     min-height: var(--box-icon-size, 64px);
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-start;
     gap: 3px;
     align-content: flex-start;
     border-radius: 8px;
