@@ -254,6 +254,20 @@ function buildExportBlockFromStringOrPanel(idOrPanel) {
 	return finalText.trim();
 }
 
+/** Normalize a box/team icon data-id so Export All skips the same logical set once. */
+function exportAllDedupeKey(dataId) {
+	if (!dataId || typeof dataId !== "string") return "";
+	var k = dataId.replace(/\s+/g, " ").trim();
+	var open = k.indexOf(" (");
+	if (open === -1) return k;
+	var name = k.substring(0, open).trim();
+	var setName = k.substring(open + 2, k.lastIndexOf(")")).trim();
+	if (name === "Aegislash-Shield") {
+		name = "Aegislash-Blade";
+	}
+	return name + "\0" + setName;
+}
+
 $("#exportL").click(function () {
 	ExportPokemon($("#p1"));
 });
@@ -287,9 +301,10 @@ $("#exportAll").click(function () {
 		seen[key] = true;
 		return true;
 	}
-	$("#box-poke-list .trainer-pok, #box-poke-list2 .trainer-pok").each(function () {
+	$("#box-poke-list .trainer-pok, #box-poke-list2 .trainer-pok, #team-poke-list .trainer-pok").each(function () {
 		var id = $(this).attr("data-id");
-		if (!id || !tryMark(id)) {
+		var key = exportAllDedupeKey(id);
+		if (!key || !tryMark(key)) {
 			return;
 		}
 		try {
@@ -316,9 +331,6 @@ $(document).on("click", ".save-to-box", function () {
 			poke.nameProp = String(customName).trim();
 		}
 		addToDex(poke);
-		if (typeof addBoxed === "function") {
-			addBoxed(poke);
-		}
 		appendMegaSavesForSpecies(poke);
 	}
 });
@@ -368,11 +380,17 @@ function removeCurrentSetFromBox(panelId) {
 	if (poke.name === "Aegislash-Blade") {
 		deleteMovesetFromAllSetdex("Aegislash-Shield", poke.nameProp);
 	}
-	var el = document.getElementById(poke.name + poke.nameProp);
-	if (el) el.remove();
+	function removeBoxDom(idSuffix) {
+		var el = document.getElementById(idSuffix);
+		if (el && el.closest && (el.closest("#box-poke-list") || el.closest("#box-poke-list2"))) {
+			el.remove();
+		}
+		el = document.getElementById("box-" + idSuffix);
+		if (el) el.remove();
+	}
+	removeBoxDom(poke.name + poke.nameProp);
 	if (poke.name === "Aegislash-Blade") {
-		var el2 = document.getElementById("Aegislash-Shield" + poke.nameProp);
-		if (el2) el2.remove();
+		removeBoxDom("Aegislash-Shield" + poke.nameProp);
 	}
 	localStorage.customsets = JSON.stringify(customsets);
 	return true;

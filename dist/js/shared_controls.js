@@ -1097,6 +1097,16 @@ function renderTrainerTeamBox(trainerNameOrFullSet, boxIndex, displayTrainerName
 var opposingMarkedSetIds = new Set();
 var tagPartnerDeadSetIds = new Set();
 var lastRenderedTrainerKey = null;
+/** When false, do not write lasttimetrainer from #p2 set-selector (avoids clobbering before restore on load). */
+var lastOpposingTrainerPersistEnabled = false;
+
+function persistLastOpposingTrainerIndexFromFullSetName(fullSetName) {
+	if (!lastOpposingTrainerPersistEnabled || !fullSetName || fullSetName.indexOf(" (") === -1) return;
+	var idx = getTrainerIndexFromSet(fullSetName);
+	if (idx !== null && idx !== undefined && !isNaN(idx)) {
+		localStorage.setItem("lasttimetrainer", String(idx));
+	}
+}
 
 function syncAlliesFaintedFromOpponentMarks() {
 	var n;
@@ -1399,6 +1409,7 @@ $(".set-selector").change(function () {
 			if (typeof applyBattleSettings === "function") {
 				applyBattleSettings(getTrainerNameFromSet(fullSetName));
 			}
+			persistLastOpposingTrainerIndexFromFullSetName(fullSetName);
 		}
 	} else {
 		topPokemonIcon(fullSetName, $("#p1mon")[0])
@@ -2714,17 +2725,54 @@ function get_trainer_names() {
 	}
 	return trainer_names;
 }
+
+function teamHasTrainerIconWithDataId(dataIdStr) {
+	var team = document.getElementById("team-poke-list");
+	if (!team || !dataIdStr) return false;
+	var nodes = team.getElementsByClassName("trainer-pok");
+	for (var i = 0; i < nodes.length; i++) {
+		if (nodes[i].getAttribute("data-id") === dataIdStr) return true;
+	}
+	return false;
+}
+
+function removeTrainerIconsWithDataIdFromBoxLists(dataIdStr) {
+	if (!dataIdStr) return;
+	var lists = ["box-poke-list", "box-poke-list2"];
+	for (var L = 0; L < lists.length; L++) {
+		var box = document.getElementById(lists[L]);
+		if (!box) continue;
+		var nodes = box.getElementsByClassName("trainer-pok");
+		for (var i = nodes.length - 1; i >= 0; i--) {
+			if (nodes[i].getAttribute("data-id") === dataIdStr) {
+				nodes[i].remove();
+			}
+		}
+	}
+}
+
 /** @param {string} [boxListId] - e.g. "box-poke-list2" for box 2; defaults to "box-poke-list". */
 function addBoxed(poke, boxListId) {
 	var listId = boxListId || "box-poke-list";
 	var listEl = document.getElementById(listId);
 	if (!listEl) return;
 	var id = "" + poke.name + poke.nameProp;
+	var dataIdStr = poke.name + " (" + poke.nameProp + ")";
+	if (teamHasTrainerIconWithDataId(dataIdStr)) {
+		removeTrainerIconsWithDataIdFromBoxLists(dataIdStr);
+		return;
+	}
+	var boxId = "box-" + id;
+	var existingBox = document.getElementById(boxId);
+	if (existingBox && existingBox.parentNode === listEl) return;
+
 	var existing = document.getElementById(id);
 	if (existing) {
-		if (existing.parentNode !== listEl) {
-			listEl.appendChild(existing);
+		if (existing.parentNode === listEl) return;
+		if (existing.closest && existing.closest("#team-poke-list")) {
+			return;
 		}
+		listEl.appendChild(existing);
 		return;
 	}
 	var newPoke = document.createElement("img");
@@ -3391,6 +3439,7 @@ $(document).ready(function () {
 		var t = parseInt(last, 10);
 		if (!isNaN(t)) selectTrainer(t);
 	}
+	lastOpposingTrainerPersistEnabled = true;
 });
 
 /* Click-to-copy function */
