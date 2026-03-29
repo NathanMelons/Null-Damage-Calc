@@ -799,6 +799,9 @@ fieldset.battle-notes-box {
 #holder-2 tr {
     white-space: nowrap;
 }
+.field-info #exportAll {
+    margin-left: 0em;
+}
 
 /* general button styling */
 .btn {

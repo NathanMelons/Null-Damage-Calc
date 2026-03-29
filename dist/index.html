@@ -32,7 +32,7 @@
                 var legacy = localStorage.getItem('darkTheme');
                 if (legacy === 'true') theme = 'dark';
                 else if (legacy === 'false') theme = 'light';
-                else theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                else theme = 'original';
             }
             if (theme === 'light') {
                 el.disabled = true;
@@ -72,8 +72,8 @@
             <div class="app-menu-row app-menu-row--theme" role="group" aria-label="Team and box icon size">
                 <span class="app-menu-row-label">Icons</span>
                 <div class="app-menu-theme-buttons">
-                    <button type="button" id="icon-size-small" class="theme-option" aria-pressed="false" title="32px">Small</button>
-                    <button type="button" id="icon-size-big" class="theme-option" aria-pressed="true" title="64px">Big</button>
+                    <button type="button" id="icon-size-small" class="theme-option" aria-pressed="true" title="32px">Small</button>
+                    <button type="button" id="icon-size-big" class="theme-option" aria-pressed="false" title="64px">Big</button>
                 </div>
             </div>
             <label class="app-menu-row app-menu-toggle-row">
@@ -93,14 +93,14 @@
             <label class="app-menu-row app-menu-toggle-row">
                 <span class="app-menu-row-label">Import Megas Automatically</span>
                 <span class="app-menu-toggle">
-                    <input type="checkbox" id="import-megas-auto" class="app-menu-toggle-input" role="switch" />
+                    <input type="checkbox" id="import-megas-auto" class="app-menu-toggle-input" role="switch" checked />
                     <span class="app-menu-toggle-track" aria-hidden="true"></span>
                 </span>
             </label>
             <label class="app-menu-row app-menu-toggle-row">
                 <span class="app-menu-row-label">Always Put Megas in Box 2</span>
                 <span class="app-menu-toggle">
-                    <input type="checkbox" id="megas-box2-toggle" class="app-menu-toggle-input" role="switch" />
+                    <input type="checkbox" id="megas-box2-toggle" class="app-menu-toggle-input" role="switch" checked />
                     <span class="app-menu-toggle-track" aria-hidden="true"></span>
                 </span>
             </label>
@@ -1221,8 +1221,9 @@
                             </div></td>
                         </tr>
                         <tr>
-                            <td><div class="left" title="Export the leftmost Pok&eacute;mon set">
-                                <button id="exportL">Export</button>
+                            <td><div class="left">
+                                <button id="exportL" title="Export the leftmost Pok&eacute;mon set">Export</button>
+                                <button type="button" id="exportAll" title="Export every Pok&eacute;mon in your box (and Box 2) to the Import / Export text area">Export All</button>
                             </div></td>
                             <td><div class="right" title="Export the rightmost Pok&eacute;mon set">
                                 <button id="exportR">Export</button>
@@ -1240,9 +1241,7 @@
                             <td><div class="left" title="Remove the current player set from the box (if saved)">
                                 <button type="button" class="remove-from-box" data-panel="p1">Remove from box</button>
                             </div></td>
-                            <td><div class="right" title="Remove the current opponent set from the box (if saved)">
-                                <button type="button" class="remove-from-box" data-panel="p2">Remove from box</button>
-                            </div></td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>

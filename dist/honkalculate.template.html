@@ -34,7 +34,7 @@
                     var legacy = localStorage.getItem('darkTheme');
                     if (legacy === 'true') theme = 'dark';
                     else if (legacy === 'false') theme = 'light';
-                    else theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    else theme = 'original';
                 }
                 if (theme === 'light') {
                     el.disabled = true;

@@ -537,7 +537,7 @@ var ZA_MEGA_STONES = {
     Froslassite: 'Froslass',
     Greninjite: 'Greninja',
     Hawluchanite: 'Hawlucha',
-    Malmarite: 'Malamar',
+    Malamarite: 'Malamar',
     Meganiumite: 'Meganium',
     Pyroarite: 'Pyroar',
     Scolipite: 'Scolipede',

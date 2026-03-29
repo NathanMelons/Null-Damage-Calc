@@ -246,12 +246,63 @@ function ExportPokemon(pokeInfo) {
 	}
 }
 
+/** One export block: same format as single Export (including mega append blocks when enabled). */
+function buildExportBlockFromStringOrPanel(idOrPanel) {
+	var pokemon = createPokemon(idOrPanel);
+	var finalText = pokemonToExportText(pokemon);
+	finalText += appendMegaExportsForPokemon(pokemon);
+	return finalText.trim();
+}
+
 $("#exportL").click(function () {
 	ExportPokemon($("#p1"));
 });
 
 $("#exportR").click(function () {
 	ExportPokemon($("#p2"));
+});
+
+$("#exportAll").click(function () {
+	if ($("#randoms").prop("checked")) {
+		alert("Export All is not available in Random Battles mode.");
+		return;
+	}
+	if (typeof createPokemon !== "function") {
+		return;
+	}
+	var seen = Object.create(null);
+	var blocks = [];
+	function pushBlock(text) {
+		if (text) {
+			blocks.push(text);
+		}
+	}
+	function tryMark(key) {
+		if (!key || typeof key !== "string") {
+			return false;
+		}
+		if (seen[key]) {
+			return false;
+		}
+		seen[key] = true;
+		return true;
+	}
+	$("#box-poke-list .trainer-pok, #box-poke-list2 .trainer-pok").each(function () {
+		var id = $(this).attr("data-id");
+		if (!id || !tryMark(id)) {
+			return;
+		}
+		try {
+			pushBlock(buildExportBlockFromStringOrPanel(id));
+		} catch (e) {
+			/* skip malformed */
+		}
+	});
+	if (!blocks.length) {
+		alert("No Pok\u00e9mon sets to export.");
+		return;
+	}
+	$("textarea.import-team-text").val(blocks.join("\n\n"));
 });
 
 $(document).on("click", ".save-to-box", function () {

@@ -285,7 +285,8 @@ $(".ability").bind("keyup change", function () {
 
 	if ($(this).closest("#p2").length) {
 		var fs = getFullSetNameFromPokeInfo($("#p2"));
-		if (fs) renderAllTrainerTeams(fs);
+		// Avoid re-rendering the opposing team grid during set-selector load; wrong fs breaks Wandering Spirit mirror.
+		if (fs && !window.NO_CALC) renderAllTrainerTeams(fs);
 	}
 
 	var pokeInfo = $(this).closest(".poke-info");
@@ -579,10 +580,10 @@ var STORAGE_IMPORT_MEGAS_AUTO = "nullcalc_importMegasAuto";
 function getImportMegasAuto() {
 	try {
 		var v = localStorage.getItem(STORAGE_IMPORT_MEGAS_AUTO);
-		if (v === null) return false;
+		if (v === null) return true;
 		return v === "true" || v === "1";
 	} catch (e) {
-		return false;
+		return true;
 	}
 }
 
@@ -604,10 +605,10 @@ var STORAGE_MEGAS_BOX2 = "nullcalc_megasBox2";
 function getMegasBox2() {
 	try {
 		var v = localStorage.getItem(STORAGE_MEGAS_BOX2);
-		if (v === null) return false;
+		if (v === null) return true;
 		return v === "true" || v === "1";
 	} catch (e) {
-		return false;
+		return true;
 	}
 }
 
@@ -869,6 +870,20 @@ function trainerSetKeyMatchesTrainer(setKey, trueName) {
 	return String(setKey).trim() === String(trueName).trim();
 }
 
+/**
+ * True when #p2's trainer is Wandering Spirit or shares a gauntlet with Wandering Spirit
+ * (so the Wandering Spirit team slot mirrors the player's Team box).
+ */
+function isOpponentInWanderingSpiritGauntletContext(oppTrainerFromSet) {
+	if (!oppTrainerFromSet) return false;
+	if (oppTrainerFromSet === "Wandering Spirit") return true;
+	if (typeof trainerNamesMatch === "function" && trainerNamesMatch("Wandering Spirit", oppTrainerFromSet)) return true;
+	if (typeof getGauntletForTrainer !== "function") return false;
+	var gWs = getGauntletForTrainer("Wandering Spirit");
+	var gCur = getGauntletForTrainer(oppTrainerFromSet);
+	return !!(gWs && gCur && gWs.trainers === gCur.trainers);
+}
+
 function get_trainer_poks(trainer_name) {
 	var true_name;
 	if (trainer_name.includes("(")) {
@@ -881,8 +896,15 @@ function get_trainer_poks(trainer_name) {
 	// (do not require $("#p2 .ability"): it is still old when set-selector.change runs get_trainer_poks first)
 	if ($("#p2").length && true_name === "Wandering Spirit") {
 		var oppSet = getFullSetNameFromPokeInfo($("#p2"));
+		if (!oppSet && typeof getOpposingSetStringForTrainerNav === "function") {
+			oppSet = getOpposingSetStringForTrainerNav();
+		}
 		var oppTrainer = oppSet ? getTrainerNameFromSet(oppSet) : "";
-		var wsNameOk = oppTrainer && (true_name === oppTrainer || (typeof trainerNamesMatch === "function" && trainerNamesMatch(true_name, oppTrainer)));
+		var wsNameOk = oppTrainer && (
+			true_name === oppTrainer ||
+			(typeof trainerNamesMatch === "function" && trainerNamesMatch(true_name, oppTrainer)) ||
+			(true_name === "Wandering Spirit" && isOpponentInWanderingSpiritGauntletContext(oppTrainer))
+		);
 		if (oppSet && wsNameOk) {
 			var ws = [];
 			var slot = 0;
@@ -892,7 +914,10 @@ function get_trainer_poks(trainer_name) {
 				ws.push("[" + (10000 + slot) + "]" + id);
 				slot++;
 			});
-			return ws;
+			if (ws.length > 0) {
+				return ws;
+			}
+			// Empty team: do not return [] — fall through so SETDEX shows [None (Wandering Spirit)] only
 		}
 	}
 	var matches = [];
@@ -1016,11 +1041,35 @@ function escapeAttr(s) {
 	return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 }
 
+/**
+ * Strip SETDEX None (Wandering Spirit) when the mirrored team has at least one mon (no ? placeholder in the grid).
+ * With 0 team mons, leave sortedPoks unchanged so SETDEX can still show None alone.
+ */
+function ensureWanderingSpiritPlaceholderAtEnd(sortedPoks) {
+	if (!sortedPoks || typeof SETDEX_SV === "undefined" || !SETDEX_SV.None || !SETDEX_SV.None["Wandering Spirit"]) {
+		return sortedPoks;
+	}
+	var teamCount = $("#team-poke-list .trainer-pok.left-side").length;
+	if (teamCount < 1) {
+		return sortedPoks;
+	}
+	var out = [];
+	for (var i = 0; i < sortedPoks.length; i++) {
+		var full = fullSetFromTrainerTeamEntry(sortedPoks[i]);
+		if (full === "None (Wandering Spirit)") continue;
+		out.push(sortedPoks[i]);
+	}
+	return out;
+}
+
 function renderTrainerTeamBox(trainerNameOrFullSet, boxIndex, displayTrainerName) {
 	// Pass full "Species (Trainer)" when available so get_trainer_poks does not mangle nested parens in trainer-only strings.
 	var trainerPoks = get_trainer_poks(trainerNameOrFullSet);
 	var sortedPoks = trainerPoks.sort(sortmons);
 	sortedPoks = filterTrainerPoksHideBaseWhenMegaPresent(sortedPoks);
+	if (displayTrainerName === "Wandering Spirit") {
+		sortedPoks = ensureWanderingSpiritPlaceholderAtEnd(sortedPoks);
+	}
 	var safeTrainer = escapeAttr(displayTrainerName);
 	var trpok_html = "";
 	for (var i in sortedPoks) {
@@ -1130,6 +1179,24 @@ function updateGauntletNavLabel(gauntlet) {
 	}
 }
 
+/** Display string for the set selector when a Team-box mon is loaded into #p2 via Wandering Spirit mirror (not a SETDEX row). */
+function formatWanderingSpiritMirrorDisplayLabel(mirroredTeamSetFullName) {
+	if (!mirroredTeamSetFullName || typeof mirroredTeamSetFullName !== "string") {
+		return "None (Wandering Spirit)";
+	}
+	var idx = mirroredTeamSetFullName.indexOf(" (");
+	if (idx === -1) {
+		var sp = mirroredTeamSetFullName.trim();
+		return sp ? sp + " (Wandering Spirit)" : "None (Wandering Spirit)";
+	}
+	var species = mirroredTeamSetFullName.substring(0, idx).trim();
+	return (species || "None") + " (Wandering Spirit)";
+}
+
+function syncOpposingHeaderLabel(gauntlet) {
+	updateGauntletNavLabel(gauntlet);
+}
+
 function renderAllTrainerTeams(fullSetName) {
 	var trainerName = getTrainerNameFromSet(fullSetName);
 	var gauntlet = getGauntletForTrainerSafe(trainerName);
@@ -1141,7 +1208,7 @@ function renderAllTrainerTeams(fullSetName) {
 
 	// Solo Wandering Spirit: mirror only. In a gauntlet, render all trainers (WS slot still mirrors via get_trainer_poks).
 	if (trainerName === "Wandering Spirit" && !gauntlet) {
-		updateGauntletNavLabel(null);
+		syncOpposingHeaderLabel(null);
 		renderTrainerTeamMirrorFromPlayer();
 		return;
 	}
@@ -1183,11 +1250,14 @@ function renderAllTrainerTeams(fullSetName) {
 		}
 	});
 	syncAlliesFaintedFromOpponentMarks();
-	updateGauntletNavLabel(gauntlet);
+	syncOpposingHeaderLabel(gauntlet);
 	updateTagPartnerBox();
 }
 
 function getFullSetNameFromPokeInfo(container) {
+	if (container.is("#p2") && window._wsMirrorHeaderActive && window._wsMirrorDisplayLabel) {
+		return window._wsMirrorDisplayLabel;
+	}
 	var setSelectorEl = container.find("input.set-selector").first();
 	var fullSetName = setSelectorEl.length ? setSelectorEl.val() : "";
 	if (!fullSetName) fullSetName = container.find(".set-selector").val();
@@ -1201,6 +1271,10 @@ function getFullSetNameFromPokeInfo(container) {
 		try { fullSetName = setSelectorEl.select2("val"); } catch (e) {}
 	}
 	if (!fullSetName) fullSetName = container.find(".select2-chosen").first().text().trim();
+	// Opposing Select2 can show "None (Wandering Spirit)" while input .val() is still empty.
+	if (!fullSetName && container.is("#p2") && typeof getOpposingSetStringForTrainerNav === "function") {
+		fullSetName = getOpposingSetStringForTrainerNav();
+	}
 	return fullSetName || "";
 }
 
@@ -1275,8 +1349,8 @@ function updateCommanderDondozoButton(pokeInfo) {
 function refreshOpposingTeamIfWanderingSpirit() {
 	var fs = getFullSetNameFromPokeInfo($("#p2"));
 	if (!fs) return;
-	// Mirror is keyed by trainer name (e.g. None (Wandering Spirit)), not the ability dropdown (often "None").
-	if (getTrainerNameFromSet(fs) !== "Wandering Spirit") return;
+	var oppTrainer = getTrainerNameFromSet(fs);
+	if (!isOpponentInWanderingSpiritGauntletContext(oppTrainer)) return;
 	renderAllTrainerTeams(fs);
 }
 
@@ -1302,24 +1376,41 @@ function resolveSetdexKey(pokemonName) {
 // auto-update set details on select
 $(".set-selector").change(function () {
 	window.NO_CALC = true;
-	var fullSetName = $(this).val();
-	if ($(this).hasClass('opposing')) {
+	var $sel = $(this);
+	var fullSetName = $sel.val();
+	var pokemon;
+	try {
+	if ($sel.hasClass('opposing')) {
+		if (!window._wsMirrorP2Load) {
+			window._wsMirrorHeaderActive = false;
+			window._wsMirrorDisplayLabel = "";
+		}
+		if (!fullSetName && typeof getOpposingSetStringForTrainerNav === "function") {
+			fullSetName = getOpposingSetStringForTrainerNav();
+		}
+		if (fullSetName && String($sel.val() || "").trim() === "") {
+			$sel.val(fullSetName);
+		}
 		topPokemonIcon(fullSetName, $("#p2mon")[0])
-		CURRENT_TRAINER_POKS = get_trainer_poks(fullSetName);
-		renderAllTrainerTeams(fullSetName);
-		if (typeof applyBattleSettings === "function") {
-			applyBattleSettings(getTrainerNameFromSet(fullSetName));
+		// Wandering Spirit mirror click loads a team member's set into #p2 but keeps None (Wandering Spirit) in the selector.
+		if (!window._wsMirrorP2Load) {
+			CURRENT_TRAINER_POKS = get_trainer_poks(fullSetName);
+			renderAllTrainerTeams(fullSetName);
+			if (typeof applyBattleSettings === "function") {
+				applyBattleSettings(getTrainerNameFromSet(fullSetName));
+			}
 		}
 	} else {
 		topPokemonIcon(fullSetName, $("#p1mon")[0])
 	}
 
-	var pokemonName = fullSetName.substring(0, fullSetName.indexOf(" ("));
-	var setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
-	var setdexKey = resolveSetdexKey(pokemonName);
-	var pokemon = pokedex[pokemonName];
+	if (fullSetName && fullSetName.indexOf(" (") !== -1) {
+		var pokemonName = fullSetName.substring(0, fullSetName.indexOf(" ("));
+		var setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
+		var setdexKey = resolveSetdexKey(pokemonName);
+		pokemon = pokedex[pokemonName];
 	if (pokemon) {
-		var pokeObj = $(this).closest(".poke-info");
+		var pokeObj = $sel.closest(".poke-info");
 		if (stickyMoves.getSelectedSide() === pokeObj.prop("id")) {
 			stickyMoves.clearStickyMove();
 		}
@@ -1335,7 +1426,7 @@ $(".set-selector").change(function () {
 		pokeObj.find(".boost").val(0);
 		pokeObj.find(".percent-hp").val(100);
 		pokeObj.find(".status").val("Healthy");
-		$(".status").change();
+		pokeObj.find(".status").change();
 		var moveObj;
 		var abilityObj = pokeObj.find(".ability");
 		var itemObj = pokeObj.find(".item");
@@ -1345,16 +1436,16 @@ $(".set-selector").change(function () {
 		if (randset) {
 			var listItems = randdex[pokemonName].items ? randdex[pokemonName].items : [];
 			var listAbilities = randdex[pokemonName].abilities ? randdex[pokemonName].abilities : [];
-			if (gen >= 3) $(this).closest('.poke-info').find(".ability-pool").show();
-			$(this).closest('.poke-info').find(".extraSetAbilities").text(listAbilities.join(', '));
-			if (gen >= 2) $(this).closest('.poke-info').find(".item-pool").show();
-			$(this).closest('.poke-info').find(".extraSetItems").text(listItems.join(', '));
+			if (gen >= 3) $sel.closest('.poke-info').find(".ability-pool").show();
+			$sel.closest('.poke-info').find(".extraSetAbilities").text(listAbilities.join(', '));
+			if (gen >= 2) $sel.closest('.poke-info').find(".item-pool").show();
+			$sel.closest('.poke-info').find(".extraSetItems").text(listItems.join(', '));
 			if (gen >= 9) {
-				$(this).closest('.poke-info').find(".role-pool").show();
-				$(this).closest('.poke-info').find(".tera-type-pool").show();
+				$sel.closest('.poke-info').find(".role-pool").show();
+				$sel.closest('.poke-info').find(".tera-type-pool").show();
 			}
 			var listRoles = randdex[pokemonName].roles ? Object.keys(randdex[pokemonName].roles) : [];
-			$(this).closest('.poke-info').find(".extraSetRoles").text(listRoles.join(', '));
+			$sel.closest('.poke-info').find(".extraSetRoles").text(listRoles.join(', '));
 			var listTeraTypes = [];
 			if (randdex[pokemonName].roles) {
 				for (var roleName in randdex[pokemonName].roles) {
@@ -1367,12 +1458,12 @@ $(".set-selector").change(function () {
 				}
 			}
 			pokeObj.find(".teraType").val(listTeraTypes[0] || pokemon.types[0]);
-			$(this).closest('.poke-info').find(".extraSetTeraTypes").text(listTeraTypes.join(', '));
+			$sel.closest('.poke-info').find(".extraSetTeraTypes").text(listTeraTypes.join(', '));
 		} else {
-			$(this).closest('.poke-info').find(".ability-pool").hide();
-			$(this).closest('.poke-info').find(".item-pool").hide();
-			$(this).closest('.poke-info').find(".role-pool").hide();
-			$(this).closest('.poke-info').find(".tera-type-pool").hide();
+			$sel.closest('.poke-info').find(".ability-pool").hide();
+			$sel.closest('.poke-info').find(".item-pool").hide();
+			$sel.closest('.poke-info').find(".role-pool").hide();
+			$sel.closest('.poke-info').find(".tera-type-pool").hide();
 		}
 		if (regSets || randset) {
 			var set = regSets ? correctHiddenPower(setdex[setdexKey][setName]) : randset;
@@ -1423,8 +1514,8 @@ $(".set-selector").change(function () {
 				moveObj.change();
 			}
 			if (randset) {
-				$(this).closest('.poke-info').find(".move-pool").show();
-				$(this).closest('.poke-info').find(".extraSetMoves").html(formatMovePool(setMoves));
+				$sel.closest('.poke-info').find(".move-pool").show();
+				$sel.closest('.poke-info').find(".extraSetMoves").html(formatMovePool(setMoves));
 			}
 		} else {
 			pokeObj.find(".teraType").val(pokemon.types[0]);
@@ -1447,7 +1538,7 @@ $(".set-selector").change(function () {
 				moveObj.change();
 			}
 			if ($("#randoms").prop("checked")) {
-				$(this).closest('.poke-info').find(".move-pool").hide();
+				$sel.closest('.poke-info').find(".move-pool").hide();
 			}
 		}
 		if (typeof getSelectedTiers === "function") { // doesn't exist when in 1vs1 mode
@@ -1486,11 +1577,21 @@ $(".set-selector").change(function () {
 			pokeObj.find(".gender").parent().removeClass("gender-empty").show();
 		}
 	}
-	window.NO_CALC = false;
-	if (pokemon && typeof applyAutoStatBoosts === "function") {
-		applyAutoStatBoosts($(this).closest(".poke-info"), fullSetName);
 	}
-	updateCommanderDondozoButton($(this).closest(".poke-info"));
+	} finally {
+		window.NO_CALC = false;
+	}
+	if (pokemon && typeof applyAutoStatBoosts === "function") {
+		applyAutoStatBoosts($sel.closest(".poke-info"), fullSetName);
+	}
+	updateCommanderDondozoButton($sel.closest(".poke-info"));
+	if ($sel.hasClass("opposing")) {
+		var p1Set = getFullSetNameFromPokeInfo($("#p1"));
+		if (p1Set) {
+			var p1sprite = document.getElementById("p1mon");
+			if (p1sprite) topPokemonIcon(p1Set, p1sprite);
+		}
+	}
 });
 
 function formatMovePool(moves) {
@@ -2690,18 +2791,37 @@ $(document).on('click', '.right-side', function () {
 	var trainerNameForWs =
 		$(this).attr("data-trainer-name") || ($list.length ? $list.attr("data-trainer-name") : null);
 	var wsMirror = trainerNameForWs === "Wandering Spirit";
-	var wsSet = wsMirror ? getFullSetNameFromPokeInfo($('#p2')) : '';
-	// Keep None (Wandering Spirit) in the selector so Next/Previous trainer use route index 1488, not the mirrored mon's index.
-	if (wsMirror && wsSet && getTrainerNameFromSet(wsSet) === 'Wandering Spirit') {
-		$('.opposing').val(set);
-		$('.opposing').change();
-		CURRENT_TRAINER_POKS = get_trainer_poks(wsSet);
-		renderAllTrainerTeams(wsSet);
-		if (typeof applyBattleSettings === 'function') {
-			applyBattleSettings(getTrainerNameFromSet(wsSet));
+	if (!wsMirror) {
+		window._wsMirrorHeaderActive = false;
+		window._wsMirrorDisplayLabel = "";
+	}
+	// Raw Select2 value for gauntlet/nav (not the mirror display label — that may differ from the underlying SETDEX row).
+	var wsNavSet = "";
+	if (wsMirror) {
+		var $oppIn = $("#p2 input.set-selector").first();
+		wsNavSet = ($oppIn.val() || "").trim();
+		if (!wsNavSet) {
+			wsNavSet = getFullSetNameFromPokeInfo($("#p2"));
 		}
-		$('.opposing').val(wsSet);
-		$('.opposing .select2-chosen').text(wsSet);
+	}
+	// Keep the gauntlet's opposing set in the selector (e.g. Psychic Cedric or None (Wandering Spirit)), not the mirrored mon's index.
+	if (wsMirror && wsNavSet && isOpponentInWanderingSpiritGauntletContext(getTrainerNameFromSet(wsNavSet))) {
+		window._wsMirrorDisplayLabel = formatWanderingSpiritMirrorDisplayLabel(set);
+		window._wsMirrorP2Load = true;
+		try {
+			$('.opposing').val(set);
+			$('.opposing').change();
+		} finally {
+			window._wsMirrorP2Load = false;
+		}
+		window._wsMirrorHeaderActive = true;
+		$('.opposing').val(wsNavSet);
+		$('.opposing .select2-chosen').text(window._wsMirrorDisplayLabel);
+		CURRENT_TRAINER_POKS = get_trainer_poks(wsNavSet);
+		renderAllTrainerTeams(wsNavSet);
+		if (typeof applyBattleSettings === 'function') {
+			applyBattleSettings(getTrainerNameFromSet(wsNavSet));
+		}
 		return;
 	}
 	topPokemonIcon(set, $("#p2mon")[0])
@@ -3189,7 +3309,7 @@ $(document).ready(function () {
 				var sv = parseInt(oldSlider, 10);
 				setIconSizeMode(!isNaN(sv) && sv < 75 ? "small" : "big");
 			} else {
-				setIconSizeMode("big");
+				setIconSizeMode("small");
 			}
 		}
 		iconSizeSmallBtn.addEventListener("click", function () {

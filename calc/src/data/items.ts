@@ -490,7 +490,7 @@ const ZA_MEGA_STONES: {[species: string]: string} = {
   Froslassite: 'Froslass',
   Greninjite: 'Greninja',
   Hawluchanite: 'Hawlucha',
-  Malmarite: 'Malamar',
+  Malamarite: 'Malamar',
   Meganiumite: 'Meganium',
   Pyroarite: 'Pyroar',
   Scolipite: 'Scolipede',

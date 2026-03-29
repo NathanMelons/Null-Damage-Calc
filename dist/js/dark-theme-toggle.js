@@ -19,7 +19,7 @@ function getInitialTheme() {
 	if (legacy === 'false') {
 		return 'light';
 	}
-	return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+	return 'original';
 }
 
 var currentTheme = getInitialTheme();
