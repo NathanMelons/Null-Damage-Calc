@@ -1,6 +1,14 @@
 /* header */
 :root {
     --box-icon-size: 64px;
+    /* Full-size sprite tile (big icon mode); panel preview always uses this, not --box-icon-size when small */
+    --big-icon-size: 64px;
+    /* Row height for one team/box icon (for min-heights); equals height for square modes */
+    --box-icon-row: 64px;
+    /* emi.dev ck+ calc — speed column (script/display.js, style.css) */
+    --speed-faster: #3cd9f5;
+    --speed-tied: #ecdf68;
+    --speed-slower: #d47070;
 }
 a img {
     border: 0;
@@ -169,7 +177,7 @@ fieldset.opposing-team-box {
     box-sizing: content-box;
     width: 30em !important;
     min-width: 30em !important;
-    min-height: calc(var(--box-icon-size, 64px) + 44px);
+    min-height: calc(var(--box-icon-row, var(--box-icon-size, 64px)) + 44px);
     padding-bottom: 3px;
     position: relative;
     overflow: visible;
@@ -204,7 +212,7 @@ fieldset.team-box-box {
     margin-top: 0.4em;
 }
 .tag-partner-team-section .tag-partner-poke-list {
-    min-height: var(--box-icon-size, 64px);
+    min-height: var(--box-icon-row, var(--box-icon-size, 64px));
 }
 .tag-partner-poke-list .tag-partner-pok {
     cursor: pointer;
@@ -325,9 +333,9 @@ fieldset.opposing-team-box:has(#trainer-poks-remaining .trainer-pok-list-opposin
     box-sizing: border-box;
 }
 .trainer-pok {
-    /* Square box + contain; size follows --box-icon-size (32px Small / 64px Big) */
-    width: var(--box-icon-size, 64px);
-    height: var(--box-icon-size, 64px);
+    /* Big: square grid. Small: original-calc flex row (overridden under html.icon-size-small). */
+    width: var(--box-icon-w, var(--box-icon-size, 64px));
+    height: var(--box-icon-h, var(--box-icon-size, 64px));
     object-fit: contain;
     object-position: top center;
     display: block;
@@ -355,8 +363,8 @@ fieldset.opposing-team-box:has(#trainer-poks-remaining .trainer-pok-list-opposin
 }
 
 .trainer-pok.trainer-gap-slot {
-    width: var(--box-icon-size, 64px);
-    height: var(--box-icon-size, 64px);
+    width: var(--box-icon-w, var(--box-icon-size, 64px));
+    height: var(--box-icon-h, var(--box-icon-size, 64px));
     pointer-events: none;
     opacity: 0;
 }
@@ -1336,6 +1344,47 @@ table.field {
 .mon-speed-none{
     outline: none !important;
 }
+/* Speed row: ck+ indicator as overlay (no layout shift — out of flow beside .total) */
+.sp-total-with-speed-cell {
+    position: relative;
+    overflow: visible;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.sp-total-and-speed {
+    position: relative;
+    display: inline-block;
+    vertical-align: baseline;
+}
+.sp-total-and-speed .speed-indicator {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0.5em;
+    text-align: center;
+    font-family: "Ubuntu Mono", ui-monospace, monospace;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 1;
+    width: max-content;
+}
+.sp-total-and-speed .speed-indicator div {
+    display: inline-block;
+}
+.sp-total-and-speed .speed-faster {
+    transform: rotate(90deg);
+    color: var(--speed-faster);
+}
+.sp-total-and-speed .speed-tied {
+    color: var(--speed-tied);
+}
+.sp-total-and-speed .speed-slower {
+    transform: rotate(-90deg);
+    color: var(--speed-slower);
+}
 .mon-dmg-none{
     background: var(--fieldset-color) !important;
     border-radius: 6px;
@@ -1394,7 +1443,7 @@ table.field {
 
 .box-poke,
 .box-poke.dropzone {
-    min-height: var(--box-icon-size, 64px);
+    min-height: var(--box-icon-row, var(--box-icon-size, 64px));
     display: grid;
     grid-template-columns: repeat(auto-fill, var(--box-icon-size, 64px));
     gap: 3px;
@@ -1405,20 +1454,63 @@ table.field {
     box-sizing: border-box;
     border-radius: 8px;
 }
-/* Extra space between 32px icons — same row/column gap and same as #trainer-poks-* flex gap */
+/* Small icons: original calc — flex-wrap lists, 30px-tall sprites, natural width, 10px spacing (see calc-original main.css .trainer-pok / .box-poke) */
 html.icon-size-small .trainer-pok-list,
 html.icon-size-small .trainer-pok-list-opposing {
-    gap: 4.6px;
+    display: flex;
+    flex-wrap: wrap;
+    /* Match Big grid vertical gap (3px) between wrapped rows; horizontal stays margin-right on icons */
+    row-gap: 3px;
+    column-gap: 0;
+    grid-template-columns: none;
 }
 html.icon-size-small .box-poke,
 html.icon-size-small .box-poke.dropzone {
-    gap: 4.6px;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 3px;
+    column-gap: 0;
+    grid-template-columns: none;
+    min-height: 30px;
 }
 html.icon-size-small #trainer-poks-first,
 html.icon-size-small #trainer-poks-remaining {
-    gap: 4.6px;
+    gap: 0.35em;
 }
-
+html.icon-size-small .trainer-pok {
+    width: auto;
+    height: 30px;
+    max-width: none;
+    object-fit: contain;
+    object-position: center center;
+    margin: 0 10px 0 0;
+}
+html.icon-size-small .trainer-pok.trainer-gap-slot {
+    width: 10px;
+    height: 30px;
+    margin-right: 10px;
+}
+html.icon-size-small .tag-partner-poke-list {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 3px;
+    column-gap: 0;
+}
+html.icon-size-small .tag-partner-poke-list .tag-partner-pok {
+    width: auto;
+    height: 30px;
+    margin: 0 10px 0 0;
+    object-fit: contain;
+    border-radius: min(6px, calc(var(--box-icon-size, 64px) * 0.12));
+}
+/* Small icons only: nudge Team / Box / opposing trainer rows slightly left */
+html.icon-size-small #team-poke-list,
+html.icon-size-small #box-poke-list,
+html.icon-size-small #box-poke-list2,
+html.icon-size-small .opposing-team-box .trainer-pok-list-opposing {
+    margin-left: -4px;
+    box-sizing: border-box;
+}
 .deadzone:hover{
     background: #722323;
 }
@@ -1476,15 +1568,15 @@ html.icon-size-small #trainer-poks-remaining {
     min-width: 0;
     box-sizing: border-box;
     /* Space for sprite + gap to level row (tuned so icon can sit left via .poke-panel-sprite-slot right) */
-    padding-right: calc(64px + 1em + 0.65em);
+    padding-right: calc(var(--big-icon-size, 64px) + 1em + 0.65em);
 }
 .poke-top-level-sprite-row .poke-panel-sprite-slot {
     position: absolute;
     right: 6em;
     top: 50%;
     transform: translateY(-50%);
-    width: 64px;
-    height: 64px;
+    width: var(--big-icon-size, 64px);
+    height: var(--big-icon-size, 64px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1507,13 +1599,13 @@ html.icon-size-small #trainer-poks-remaining {
 .poke-top-row .info-group .gender-row {
     margin-top: 2px;
 }
-/* Detail panel sprite only (not team/box icons): fixed max size; team .trainer-pok uses --box-icon-size */
+/* Top-of-panel preview: same pixel size as big icons; always full-size sprite asset (see getSrcImgPokemon(..., true)) */
 .poke-panel-sprite,
 #p1mon, #p2mon {
     flex-shrink: 0;
-    width: 64px;
-    height: 64px;
-    min-height: 64px;
+    width: var(--big-icon-size, 64px);
+    height: var(--big-icon-size, 64px);
+    min-height: var(--big-icon-size, 64px);
     object-fit: contain;
     margin-left: 0;
     margin-top: 0;

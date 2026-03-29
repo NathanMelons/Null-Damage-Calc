@@ -196,10 +196,22 @@ function getHPDVs(poke) {
 		(~~poke.find(gen === 1 ? ".sl .dvs" : ".sa .dvs").val() % 2);
 }
 
+function updateSpTotalMod(poke) {
+	var $mod = poke.find(".sp .totalMod");
+	if (!$mod.length) return;
+	try {
+		var pokemon = createPokemon(poke);
+		$mod.text(pokemon.stats.spe);
+	} catch (e) {
+		$mod.text("---");
+	}
+}
+
 function calcStats(poke) {
 	for (var i = 0; i < LEGACY_STATS[gen].length; i++) {
 		calcStat(poke, LEGACY_STATS[gen][i]);
 	}
+	updateSpTotalMod(poke);
 }
 
 function calcCurrentHP(poke, max, percent, skipDraw) {
@@ -976,14 +988,11 @@ function getTagPartnerSetTrainerKey(opponentTrainerName) {
 function buildTagPartnerTeamHtml(sortedPoks) {
 	var trpok_html = "";
 	for (var i in sortedPoks) {
-		var pok_name = sortedPoks[i].split("]")[1].split(" (")[0];
-		if (pok_name == "Zygarde-10%") pok_name = "Zygarde-10%25";
-		else if (pok_name == "Tauros-Paldea-Water") pok_name = "Tauros-Paldea-Aqua";
-		else if (pok_name == "Tauros-Paldea-Fire") pok_name = "Tauros-Paldea-Blaze";
-		else if (pok_name == "Tauros-Paldea") pok_name = "Tauros-Paldea-Combat";
-		else if (pok_name == "Pumpkaboo-Super") pok_name = "Pumpkaboo";
-		else if (pok_name == "Mime Jr.") pok_name = "Mime%20Jr";
-		else if (pok_name == "Aegislash-Shield") pok_name = "Aegislash";
+		var pok_name_raw = sortedPoks[i].split("]")[1].split(" (")[0];
+		try {
+			pok_name_raw = decodeURIComponent(pok_name_raw);
+		} catch (e) {}
+		var pok_name = normalizeTrainerIconSpeciesName(pok_name_raw);
 		var poke = { name: pok_name };
 		var spriteSrc = getSrcImgPokemon(poke);
 		var idAttr = sortedPoks[i].split("]")[1];
@@ -1073,14 +1082,11 @@ function renderTrainerTeamBox(trainerNameOrFullSet, boxIndex, displayTrainerName
 	var safeTrainer = escapeAttr(displayTrainerName);
 	var trpok_html = "";
 	for (var i in sortedPoks) {
-		var pok_name = sortedPoks[i].split("]")[1].split(" (")[0];
-		if (pok_name == "Zygarde-10%") pok_name = "Zygarde-10%25";
-		else if (pok_name == "Tauros-Paldea-Water") pok_name = "Tauros-Paldea-Aqua";
-		else if (pok_name == "Tauros-Paldea-Fire") pok_name = "Tauros-Paldea-Blaze";
-		else if (pok_name == "Tauros-Paldea") pok_name = "Tauros-Paldea-Combat";
-		else if (pok_name == "Pumpkaboo-Super") pok_name = "Pumpkaboo";
-		else if (pok_name == "Mime Jr.") pok_name = "Mime%20Jr";
-		else if (pok_name == "Aegislash-Shield") pok_name = "Aegislash";
+		var pok_name_raw = sortedPoks[i].split("]")[1].split(" (")[0];
+		try {
+			pok_name_raw = decodeURIComponent(pok_name_raw);
+		} catch (e) {}
+		var pok_name = normalizeTrainerIconSpeciesName(pok_name_raw);
 		var poke = { name: pok_name };
 		var spriteSrc = getSrcImgPokemon(poke);
 		var pok =
@@ -2797,7 +2803,20 @@ function getArceusFormeFromItem(item) {
 	return (item && ARCEUS_PLATE_TO_FORM[item]) || null;
 }
 
-function getSrcImgPokemon(poke) {
+/** SETDEX species string → filename stem (matches getSrcImgPokemon rules). */
+function normalizeTrainerIconSpeciesName(pok_name) {
+	if (pok_name == "Zygarde-10%") pok_name = "Zygarde-10%25";
+	else if (pok_name == "Tauros-Paldea-Water") pok_name = "Tauros-Paldea-Aqua";
+	else if (pok_name == "Tauros-Paldea-Fire") pok_name = "Tauros-Paldea-Blaze";
+	else if (pok_name == "Tauros-Paldea") pok_name = "Tauros-Paldea-Combat";
+	else if (pok_name == "Pumpkaboo-Super") pok_name = "Pumpkaboo";
+	else if (pok_name == "Mime Jr.") pok_name = "Mime%20Jr";
+	else if (pok_name == "Aegislash-Shield") pok_name = "Aegislash";
+	return pok_name;
+}
+
+/** @param {boolean} [alwaysFullSizeIcon] If true, use full-size sprites (same as big icon mode); used for top-of-panel previews. */
+function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	if (!poke) {
 		return;
 	}
@@ -2827,7 +2846,10 @@ function getSrcImgPokemon(poke) {
 		iconName = iconName.replace(/Mr\. Rime/g, "Mr-Rime");
 	}
 	iconName = iconName.replace(/ /g, "-");
-	return `./icons/${iconName}.png`;
+	var useSmall =
+		!alwaysFullSizeIcon &&
+		typeof localStorage !== "undefined" && localStorage.getItem("icon-size-mode") === "small";
+	return useSmall ? `./icons/${iconName}-small.png` : `./icons/${iconName}.png`;
 }
 
 function topPokemonIcon(fullname, node) {
@@ -2837,8 +2859,36 @@ function topPokemonIcon(fullname, node) {
 		var it = $panel.find(".item").val();
 		if (it) mon.item = it;
 	}
-	var src = getSrcImgPokemon(mon);
-	node.src = src;
+	node.src = getSrcImgPokemon(mon, true);
+}
+
+function refreshTeamGridPokemonIconSrcs() {
+	var sel =
+		"#team-poke-list .trainer-pok, #trainer-poks-first .trainer-pok, #trainer-poks-remaining .trainer-pok, #tag-partner-poke-list .trainer-pok, #box-poke-list .trainer-pok, #box-poke-list2 .trainer-pok, #trash-box .trainer-pok";
+	$(sel).each(function () {
+		var dataId = $(this).attr("data-id");
+		if (!dataId) return;
+		var raw = dataId.indexOf("]") >= 0 ? dataId.slice(dataId.indexOf("]") + 1) : dataId;
+		var pok_name = raw.split(" (")[0];
+		try {
+			pok_name = decodeURIComponent(pok_name);
+		} catch (e) {}
+		var pok_norm = normalizeTrainerIconSpeciesName(pok_name);
+		this.src = getSrcImgPokemon({ name: pok_norm });
+	});
+}
+
+function refreshPanelPokemonSpritesForIconMode() {
+	var el1 = document.getElementById("p1mon");
+	if (el1) {
+		var f1 = getFullSetNameFromPokeInfo($("#p1"));
+		if (f1) topPokemonIcon(f1, el1);
+	}
+	var el2 = document.getElementById("p2mon");
+	if (el2) {
+		var f2 = getFullSetNameFromPokeInfo($("#p2"));
+		if (f2) topPokemonIcon(f2, el2);
+	}
 }
 
 $(document).on('click', '.right-side', function () {
@@ -3339,31 +3389,54 @@ $(document).ready(function () {
 		dropzone.ondragover=allowDrop;
 	}
 	initTeamPokeListObserver();
-	// Small / Big icons: 32px vs 64px (--box-icon-size); same PNG files, scaled by CSS.
+	// Small: original-calc layout (flex row, 30px-tall) + ./icons/*-small.png. Big: 64×64 + full PNG.
 	var ICON_SIZE_BIG_PX = 64;
-	var ICON_SIZE_SMALL_PX = 32;
+	var ICON_ORIGINAL_ROW_PX = 30;
 	var iconSizeSmallBtn = document.getElementById("icon-size-small");
 	var iconSizeBigBtn = document.getElementById("icon-size-big");
+	function applyIconSizeVars(pxSize, w, h, rowPx) {
+		document.documentElement.style.setProperty("--box-icon-size", pxSize + "px");
+		document.documentElement.style.setProperty("--box-icon-w", w + "px");
+		document.documentElement.style.setProperty("--box-icon-h", h + "px");
+		document.documentElement.style.setProperty("--box-icon-row", rowPx + "px");
+	}
 	function setIconSizeMode(mode) {
-		var px = mode === "small" ? ICON_SIZE_SMALL_PX : ICON_SIZE_BIG_PX;
-		document.documentElement.style.setProperty("--box-icon-size", px + "px");
+		if (mode === "medium") mode = "small";
+		if (mode === "compact") mode = "big";
 		document.documentElement.classList.toggle("icon-size-small", mode === "small");
+		document.documentElement.classList.remove("icon-size-compact");
+		if (mode === "small") {
+			applyIconSizeVars(ICON_ORIGINAL_ROW_PX, ICON_ORIGINAL_ROW_PX, ICON_ORIGINAL_ROW_PX, ICON_ORIGINAL_ROW_PX);
+		} else {
+			var b = ICON_SIZE_BIG_PX;
+			applyIconSizeVars(b, b, b, b);
+		}
 		if (iconSizeSmallBtn && iconSizeBigBtn) {
-			var isSmall = mode === "small";
-			iconSizeSmallBtn.setAttribute("aria-pressed", isSmall ? "true" : "false");
-			iconSizeBigBtn.setAttribute("aria-pressed", !isSmall ? "true" : "false");
+			var isBig = mode === "big";
+			iconSizeSmallBtn.setAttribute("aria-pressed", !isBig ? "true" : "false");
+			iconSizeBigBtn.setAttribute("aria-pressed", isBig ? "true" : "false");
 		}
 		localStorage.setItem("icon-size-mode", mode);
+		if (typeof refreshTeamGridPokemonIconSrcs === "function") {
+			refreshTeamGridPokemonIconSrcs();
+		}
+		if (typeof refreshPanelPokemonSpritesForIconMode === "function") {
+			refreshPanelPokemonSpritesForIconMode();
+		}
 	}
 	if (iconSizeSmallBtn && iconSizeBigBtn) {
 		var savedMode = localStorage.getItem("icon-size-mode");
+		if (savedMode === "medium") savedMode = "small";
+		if (savedMode === "compact") savedMode = "big";
 		if (savedMode === "small" || savedMode === "big") {
 			setIconSizeMode(savedMode);
 		} else {
 			var oldSlider = localStorage.getItem("icon-size-slider");
 			if (oldSlider !== null) {
 				var sv = parseInt(oldSlider, 10);
-				setIconSizeMode(!isNaN(sv) && sv < 75 ? "small" : "big");
+				if (isNaN(sv)) setIconSizeMode("small");
+				else if (sv < 50) setIconSizeMode("small");
+				else setIconSizeMode("big");
 			} else {
 				setIconSizeMode("small");
 			}

@@ -23,6 +23,30 @@ for (var i = 0; i < 4; i++) {
 }
 
 var damageResults;
+
+/** Same markup as emi.dev ck+ display.js (speed-indicator + speed-faster | speed-tied | speed-slower). */
+function updateSpeedTierIcons(p1spe, p2spe) {
+	var p1kind = p1spe > p2spe ? "F" : p1spe < p2spe ? "S" : "T";
+	var p2kind = p2spe > p1spe ? "F" : p2spe < p1spe ? "S" : "T";
+	var labels = { F: "Faster than opponent", T: "Speed tie", S: "Slower than opponent" };
+	function apply($panel, kind) {
+		var $m = $panel.find(".sp .speed-indicator");
+		if (!$m.length) return;
+		if (kind === "F") {
+			$m.html('<div class="speed-faster">&laquo;</div>');
+		} else if (kind === "S") {
+			$m.html('<div class="speed-slower">&laquo;</div>');
+		} else {
+			$m.html('<div class="speed-tied">-</div>');
+		}
+		$m.attr("title", labels[kind]);
+		$m.attr("aria-label", labels[kind]);
+		$m.removeAttr("hidden");
+	}
+	apply($("#p1"), p1kind);
+	apply($("#p2"), p2kind);
+}
+
 function performCalculations() {
 	var p1info = $("#p1");
 	var p2info = $("#p2");
@@ -39,6 +63,7 @@ function performCalculations() {
 	p2.maxDamages = [];
 	p1info.find(".sp .totalMod").text(p1.stats.spe);
 	p2info.find(".sp .totalMod").text(p2.stats.spe);
+	updateSpeedTierIcons(p1.stats.spe, p2.stats.spe);
 	var fastestSide = p1.stats.spe > p2.stats.spe ? 0 : p1.stats.spe === p2.stats.spe ? "tie" : 1;
 
 	var result, maxDamage;

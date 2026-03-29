@@ -10564,7 +10564,7 @@ var ZA_PATCH = {
         bs: { hp: 60, at: 135, df: 95, sa: 90, sd: 95, sp: 110 },
         weightkg: 38.0,
         abilities: {
-            0: 'Static'
+            0: 'Motor Drive'
         },
         baseSpecies: 'Raichu'
     },
@@ -10573,7 +10573,7 @@ var ZA_PATCH = {
         bs: { hp: 60, at: 100, df: 55, sa: 160, sd: 80, sp: 130 },
         weightkg: 26.0,
         abilities: {
-            0: 'Static'
+            0: 'Volt Absorb'
         },
         baseSpecies: 'Raichu'
     },
