@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Write docs/icons/{Name}-small.png for each docs/icons/{Name}.png (skips *-small.png / *-Small.png sources).
+Write docs/icons/{Name}-Small.png for each docs/icons/{Name}.png (skips *-small / *-Small sources).
 Each output is a 40×30 canvas; the sprite is scaled to fit inside (aspect preserved), centered on transparency.
 Run from repo root: python scripts/generate-small-icons.py
 """
@@ -47,7 +47,7 @@ def main() -> None:
         stem = p.stem
         if stem.lower().endswith("-small"):
             continue
-        out = icons / f"{stem}-small.png"
+        out = icons / f"{stem}-Small.png"
         try:
             im = Image.open(p)
             fit_contain_center(im, W, H).save(out, "PNG")
@@ -57,7 +57,7 @@ def main() -> None:
         except OSError as e:
             err += 1
             print("FAIL", p.name, e, file=sys.stderr)
-    print(f"Wrote {n} *-small.png, {err} errors")
+    print(f"Wrote {n} *-Small.png, {err} errors")
 
 
 if __name__ == "__main__":

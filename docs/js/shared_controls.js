@@ -2872,13 +2872,35 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 		!alwaysFullSizeIcon &&
 		typeof localStorage !== "undefined" &&
 		localStorage.getItem("icon-size-mode") === "small";
-	return useSmall ? base + iconName + "-small.png" : base + iconName + ".png";
+	// Must match export_small_icons.py / build_icons_small_canvas.py (*-Small.png). Linux (GitHub Pages) is case-sensitive.
+	return useSmall ? base + iconName + "-Small.png" : base + iconName + ".png";
+}
+
+/** If *-Small.png fails, try *-small.png (scripts/generate-small-icons.py); then full *.png. */
+function pokemonIconListImgOnError(el) {
+	var full = el.dataset.iconFallback;
+	var primary = el.dataset.iconPrimary;
+	if (!el.dataset.iconTriedAlt && primary && full && primary !== full) {
+		var alt =
+			primary.indexOf("-Small.png") !== -1
+				? primary.replace("-Small.png", "-small.png")
+				: primary.indexOf("-small.png") !== -1
+					? primary.replace("-small.png", "-Small.png")
+					: null;
+		if (alt && alt !== primary) {
+			el.dataset.iconTriedAlt = "1";
+			el.src = alt;
+			return;
+		}
+	}
+	el.onerror = null;
+	if (full) el.src = full;
 }
 
 /** Appended to team / trainer / box icon <img> tags: defer offscreen loads + decode off main thread (many parallel requests on GitHub Pages). */
 var POKEMON_LIST_ICON_HTML_ATTRS = ' loading="lazy" decoding="async"';
 
-/** For <img> attributes: `*-small.png` in small mode, with onerror fallback to full PNG if missing. */
+/** For <img> attributes: `*-Small.png` in small mode, then alternate casing, then full PNG. */
 function pokemonIconImgSrcAttributes(poke, alwaysFullForThisImg) {
 	var primary = getSrcImgPokemon(poke, alwaysFullForThisImg);
 	var full = getSrcImgPokemon(poke, true);
@@ -2889,9 +2911,11 @@ function pokemonIconImgSrcAttributes(poke, alwaysFullForThisImg) {
 	return (
 		'src="' +
 		escapeAttr(primary) +
+		'" data-icon-primary="' +
+		escapeAttr(primary) +
 		'" data-icon-fallback="' +
 		escapeAttr(full) +
-		'" onerror="var f=this.dataset.iconFallback;if(f){this.onerror=null;this.src=f;}"' +
+		'" onerror="pokemonIconListImgOnError(this)"' +
 		POKEMON_LIST_ICON_HTML_ATTRS
 	);
 }
@@ -2908,15 +2932,19 @@ function setPokemonIconImgSrc(img, poke, alwaysFullSizeIcon) {
 	}
 	var primary = getSrcImgPokemon(poke, alwaysFullSizeIcon);
 	var full = getSrcImgPokemon(poke, true);
-	img.src = primary || "";
+	delete img.dataset.iconPrimary;
+	delete img.dataset.iconFallback;
+	delete img.dataset.iconTriedAlt;
 	if (primary && full && primary !== full) {
+		img.dataset.iconPrimary = primary;
+		img.dataset.iconFallback = full;
 		img.onerror = function () {
-			img.onerror = null;
-			img.src = full;
+			pokemonIconListImgOnError(img);
 		};
 	} else {
 		img.onerror = null;
 	}
+	img.src = primary || "";
 }
 
 function topPokemonIcon(fullname, node) {
@@ -3456,7 +3484,7 @@ $(document).ready(function () {
 		dropzone.ondragover=allowDrop;
 	}
 	initTeamPokeListObserver();
-	// Small: flex row + docs/icons/*-small.png (fallback to *.png if missing). Big: 64×64 + full PNG.
+	// Small: flex row + docs/icons/*-Small.png (alt *-small.png; fallback *.png). Big: 64×64 + full PNG.
 	var ICON_SIZE_BIG_PX = 64;
 	var ICON_ORIGINAL_ROW_PX = 30;
 	var iconSizeSmallBtn = document.getElementById("icon-size-small");
