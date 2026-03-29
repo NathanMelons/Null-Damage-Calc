@@ -69,3 +69,10 @@ cpdir('calc/dist', 'dist/calc');
 makeCachebuster('dist/honkalculate.template.html', 'dist/honkalculate.html');
 makeCachebuster('dist/index.template.html', 'dist/index.html');
 makeCachebuster('dist/randoms.template.html', 'dist/randoms.html');
+(function writeNojekyll() {
+	fs.writeFileSync(path.resolve(rootDir, 'dist', '.nojekyll'), '');
+	var docsRoot = path.join(rootDir, 'docs');
+	if (fs.existsSync(docsRoot)) {
+		fs.writeFileSync(path.join(docsRoot, '.nojekyll'), '');
+	}
+})();
