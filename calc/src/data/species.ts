@@ -10114,7 +10114,7 @@ const ZA_PATCH: {[name: string]: DeepPartial<SpeciesData>} = {
     },
     weightkg: 90.0,
     abilities: {
-      '0': 'Battle Armor',
+      '0': 'Bulletproof',
     },
     baseSpecies: 'Chesnaught',
   },
@@ -10310,7 +10310,7 @@ const ZA_PATCH: {[name: string]: DeepPartial<SpeciesData>} = {
     },
     weightkg: 99.0,
     abilities: {
-      '0': 'Battle Armor',
+      '0': 'Sharpness',
     },
     baseSpecies: 'Falinks',
   },
@@ -10375,7 +10375,7 @@ const ZA_PATCH: {[name: string]: DeepPartial<SpeciesData>} = {
     bs: {hp: 108, at: 130, df: 85, sa: 141, sd: 85, sp: 151},
     weightkg: 99.0,
     abilities: {
-      0: 'Sand Veil',
+      0: 'Aura Break',
     },
     baseSpecies: 'Garchomp',
   },
@@ -10421,7 +10421,7 @@ const ZA_PATCH: {[name: string]: DeepPartial<SpeciesData>} = {
     },
     weightkg: 40.0,
     abilities: {
-      '0': 'Technician',
+      '0': 'Protean',
     },
     baseSpecies: 'Greninja',
   },
@@ -10458,7 +10458,7 @@ const ZA_PATCH: {[name: string]: DeepPartial<SpeciesData>} = {
     bs: {hp: 70, at: 100, df: 70, sa: 164, sd: 70, sp: 151},
     weightkg: 49.4,
     abilities: {
-      0: 'Steadfast',
+      0: 'Aura Break',
     },
     baseSpecies: 'Lucario',
   },
@@ -10466,6 +10466,7 @@ const ZA_PATCH: {[name: string]: DeepPartial<SpeciesData>} = {
     types: ['Steel', 'Fairy'],
     bs: {hp: 80, at: 125, df: 115, sa: 170, sd: 115, sp: 95},
     weightkg: 248.1,
+    gender: 'N',
     abilities: {
       0: 'Soul-Heart',
     },
@@ -10475,6 +10476,7 @@ const ZA_PATCH: {[name: string]: DeepPartial<SpeciesData>} = {
     types: ['Steel', 'Fairy'],
     bs: {hp: 80, at: 125, df: 115, sa: 170, sd: 115, sp: 95},
     weightkg: 248.1,
+    gender: 'N',
     abilities: {
       0: 'Soul-Heart',
     },

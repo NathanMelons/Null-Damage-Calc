@@ -78,10 +78,11 @@ select {
     color: var(--text);
 }
 
-/* Base power, Crit and Z buttons: same border as Tera Type */
+/* Base power, Crit / Z / Commander buttons: same border as Tera Type */
 .poke-info input.move-bp,
 .poke-info .crit-btn,
-.poke-info .z-btn {
+.poke-info .z-btn,
+.poke-info .commander-dondozo-btn {
     border: 1px solid black !important;
     border-radius: 6px;
 }
@@ -242,4 +243,48 @@ div.info-group.info-selectors.i-f-stats .info-selector-row select,
 div.info-group.info-selectors.i-f-o-stats .info-selector-row select {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
+}
+
+.app-menu-cog {
+    border-color: #555555;
+    background-color: var(--fieldset-color);
+}
+.app-menu-panel {
+    border-color: #e5e7eb;
+    background-color: #1a1a1a;
+    color: #f3f4f6;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+.app-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.app-menu-toggle-row:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.app-menu-toggle-track {
+    background: #4a4a55;
+}
+.app-menu-toggle-input:checked + .app-menu-toggle-track {
+    background: #2563eb;
+}
+.app-menu-toggle-input:focus-visible + .app-menu-toggle-track {
+    box-shadow: 0 0 0 2px #93c5fd;
+}
+.battle-notes-box .battle-notes-textarea,
+.import-export-box .import-name-text,
+.import-export-box .import-team-text {
+    background: var(--background);
+    color: var(--text);
+    border-color: black !important;
+}
+.import-export-box #import.bs-btn.bs-btn-default {
+    background: var(--background);
+    color: var(--text);
+    border-color: black !important;
+}
+.import-export-box #import.bs-btn.bs-btn-default:hover,
+.import-export-box #import.bs-btn.bs-btn-default:focus {
+    background: var(--button-hover);
+    border-color: black !important;
+    color: var(--text);
 }

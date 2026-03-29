@@ -1,13 +1,13 @@
 # EKalc
 
-This is a fork of the damage calculator that contains all the R&B stat changes, and has every trainer pre imported.
+This is a fork of the Null Damage Calculator that contains all the R&B stat changes, and has every trainer pre imported.
 Additionally some bugs are fixed, weather doesn't auto toggle off, and there are clickable icons for Pokemon to navigate.
 The working version can be seen at ![Calc](https://dekzeh.github.io/calc/)
 
-Damage calculator for all generations of Pokémon battling.
+Null Damage Calculator for all generations of Pokémon battling.
 
 If you are currently looking at [smogon/damage-calc][0] and not
-a fork, this is the official repository for the Pokémon Showdown! damage calculator:
+a fork, this is the official repository for the Pokémon Showdown! Null Damage Calculator:
 https://calc.pokemonshowdown.com.
 
 This repository houses both the package implementing the core damage formula mechanics in each

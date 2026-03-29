@@ -48,6 +48,7 @@ function applyTheme(theme, skipStorage) {
 			root.classList.remove('theme-original-dark');
 		}
 	}
+	root.setAttribute('data-theme', theme);
 
 	if (!skipStorage) {
 		localStorage.setItem(THEME_STORAGE_KEY, theme);

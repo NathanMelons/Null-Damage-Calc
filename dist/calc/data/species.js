@@ -1743,7 +1743,7 @@ var ADV_PATCH = {
     Qwilfish: { abilities: { 0: 'Poison Point' } },
     Raikou: { abilities: { 0: 'Pressure' } },
     Remoraid: { abilities: { 0: 'Hustle' } },
-    Scizor: { abilities: { 0: 'Swarm' } },
+    Scizor: { abilities: { 0: 'Technician' } },
     Sentret: { abilities: { 0: 'Run Away' } },
     Shuckle: { abilities: { 0: 'Sturdy' } },
     Skarmory: { abilities: { 0: 'Keen Eye' } },
@@ -2453,7 +2453,7 @@ var ADV_PATCH = {
         types: ['Water', 'Dark'],
         bs: { hp: 70, at: 120, df: 40, sa: 95, sd: 40, sp: 95 },
         weightkg: 88.8,
-        abilities: { 0: 'Rough Skin' }
+        abilities: { 0: 'Speed Boost' }
     },
     Shedinja: {
         types: ['Bug', 'Ghost'],
@@ -10125,7 +10125,7 @@ var ZA_PATCH = {
         },
         weightkg: 90.0,
         abilities: {
-            '0': 'Battle Armor'
+            '0': 'Bulletproof'
         },
         baseSpecies: 'Chesnaught'
     },
@@ -10321,7 +10321,7 @@ var ZA_PATCH = {
         },
         weightkg: 99.0,
         abilities: {
-            '0': 'Battle Armor'
+            '0': 'Sharpness'
         },
         baseSpecies: 'Falinks'
     },
@@ -10386,7 +10386,7 @@ var ZA_PATCH = {
         bs: { hp: 108, at: 130, df: 85, sa: 141, sd: 85, sp: 151 },
         weightkg: 99.0,
         abilities: {
-            0: 'Sand Veil'
+            0: 'Aura Break'
         },
         baseSpecies: 'Garchomp'
     },
@@ -10432,7 +10432,7 @@ var ZA_PATCH = {
         },
         weightkg: 40.0,
         abilities: {
-            '0': 'Technician'
+            '0': 'Protean'
         },
         baseSpecies: 'Greninja'
     },
@@ -10469,7 +10469,7 @@ var ZA_PATCH = {
         bs: { hp: 70, at: 100, df: 70, sa: 164, sd: 70, sp: 151 },
         weightkg: 49.4,
         abilities: {
-            0: 'Steadfast'
+            0: 'Aura Break'
         },
         baseSpecies: 'Lucario'
     },
@@ -10477,6 +10477,7 @@ var ZA_PATCH = {
         types: ['Steel', 'Fairy'],
         bs: { hp: 80, at: 125, df: 115, sa: 170, sd: 115, sp: 95 },
         weightkg: 248.1,
+        gender: 'N',
         abilities: {
             0: 'Soul-Heart'
         },
@@ -10486,6 +10487,7 @@ var ZA_PATCH = {
         types: ['Steel', 'Fairy'],
         bs: { hp: 80, at: 125, df: 115, sa: 170, sd: 115, sp: 95 },
         weightkg: 248.1,
+        gender: 'N',
         abilities: {
             0: 'Soul-Heart'
         },

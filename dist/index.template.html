@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Pok&eacute;mon Damage Calculator</title>
+    <title>Pok&eacute;mon Null Damage Calculator</title>
     <link type="text/css" rel="stylesheet" href="./js/vendor/select2/select2.css" />
     <link type="text/css" rel="stylesheet" href="./css/main.css?" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
@@ -44,6 +44,7 @@
                     document.documentElement.classList.add('theme-original-dark');
                 }
             }
+            document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
 </head>
@@ -52,8 +53,63 @@
 
 <div class="wrapper">
 
-    <div aria-label="Settings" role="region">
-        <span class="title-text">Pok&eacute;mon Damage Calculator</span>
+    <div class="app-header-bar">
+    <div class="app-menu-dropdown">
+        <button type="button" id="app-menu-toggle" class="app-menu-cog" aria-expanded="false" aria-haspopup="true" aria-controls="app-menu-panel" title="Menu">
+            <svg class="app-menu-cog-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.07.63-.07.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+        </button>
+        <div id="app-menu-panel" class="app-menu-panel" role="region" aria-label="Settings" hidden>
+            <div id="theme-picker-section" class="app-menu-row app-menu-row--theme" role="group" aria-label="Color theme">
+                <span class="app-menu-row-label">Theme</span>
+                <div class="app-menu-theme-buttons">
+                    <button type="button" class="theme-option" data-theme="original" aria-pressed="false" title="Original calculator dark colors">Original</button>
+                    <button type="button" class="theme-option" data-theme="light" aria-pressed="false">Light</button>
+                    <button type="button" class="theme-option" data-theme="dark" aria-pressed="false">Dark</button>
+                </div>
+            </div>
+            <div class="app-menu-row app-menu-row--theme" role="group" aria-label="Team and box icon size">
+                <span class="app-menu-row-label">Icons</span>
+                <div class="app-menu-theme-buttons">
+                    <button type="button" id="icon-size-small" class="theme-option" aria-pressed="false" title="32px">Small</button>
+                    <button type="button" id="icon-size-big" class="theme-option" aria-pressed="true" title="64px">Big</button>
+                </div>
+            </div>
+            <label class="app-menu-row app-menu-toggle-row">
+                <span class="app-menu-row-label">Show Mega Separately</span>
+                <span class="app-menu-toggle">
+                    <input type="checkbox" id="trainer-team-mega-base-separate" class="app-menu-toggle-input" role="switch" checked />
+                    <span class="app-menu-toggle-track" aria-hidden="true"></span>
+                </span>
+            </label>
+            <label class="app-menu-row app-menu-toggle-row">
+                <span class="app-menu-row-label">Battle Notes</span>
+                <span class="app-menu-toggle">
+                    <input type="checkbox" id="battle-notes-toggle" class="app-menu-toggle-input" role="switch" />
+                    <span class="app-menu-toggle-track" aria-hidden="true"></span>
+                </span>
+            </label>
+            <label class="app-menu-row app-menu-toggle-row">
+                <span class="app-menu-row-label">Import Megas Automatically</span>
+                <span class="app-menu-toggle">
+                    <input type="checkbox" id="import-megas-auto" class="app-menu-toggle-input" role="switch" />
+                    <span class="app-menu-toggle-track" aria-hidden="true"></span>
+                </span>
+            </label>
+            <label class="app-menu-row app-menu-toggle-row">
+                <span class="app-menu-row-label">Always put megas in box 2</span>
+                <span class="app-menu-toggle">
+                    <input type="checkbox" id="megas-box2-toggle" class="app-menu-toggle-input" role="switch" />
+                    <span class="app-menu-toggle-track" aria-hidden="true"></span>
+                </span>
+            </label>
+        </div>
+    </div>
+
+    <span class="title-text">Pok&eacute;mon Null Damage Calculator</span>
+
+    <div class="app-top-offset" aria-label="Generation and display options" role="region">
         <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation.">
             <span class="visually-hidden" id="selectGenInstruction">Select the generation.</span>
             <input class="gen visually-hidden" type="radio" name="gen" value="9" id="gen9" checked="checked" />
@@ -71,7 +127,7 @@
             <input class="mode visually-hidden" type="radio" name="mode" id="randoms" />
         </span>
     </div>
-    <hr />
+    </div>
     <div aria-label="Move selection" class="move-result-group" role="region" title="Select a move to show detailed results.">
         <div  aria-labelledby="resultHeaderL" class="move-result-subgroup" role="radiogroup">
             <div class="result-move-header"><span id="resultHeaderL">Pok&eacute;mon 1's Moves (select one to show detailed results)</span>
@@ -159,7 +215,7 @@
                 </span>
                 </div>
                 <div class="poke-top-row">
-                <div class="info-group top i-f-type">
+                <div class="info-group top i-f-type poke-top-primary">
                     <div>
                         <label>Type</label>
                         <select aria-label="type1" class="type1 terrain-trigger calc-trigger"></select>
@@ -170,14 +226,22 @@
                         <select class="teraType terrain-trigger calc-trigger"></select>
                         <input type="checkbox" title= "Has this Pok&eacute;mon terastalized?" class="teraToggle terrain-trigger calc-trigger">
                     </div>
+                    <div class="poke-top-level-sprite-row">
                     <div class="level-row-with-set-btn">
                         <label for="levelL1">Level</label>
                         <input class="level calc-trigger" id="levelL1" value="100" inputmode="decimal" type="number" min="1" max="100" step="1" />
+                    </div>
+                <div class="poke-panel-sprite-slot">
+                <img id="p1mon" src="" alt="" class="poke-panel-sprite">
+                </div>
                     </div>
                     <div class="hide gender-row">
                         <label>Gender</label>
                         <select class="gender calc-trigger"><option></option><option selected="selected">Male</option><option>Female</option></select>
                     </div>
+                </div>
+                </div>
+                <div class="info-group top i-f-type poke-top-forme-wrap">
                     <div class="hide forme-row">
                         <label>Forme</label>
                         <select class="forme calc-trigger"></select>
@@ -186,8 +250,6 @@
                         <label for="weightL1">Weight (kg)</label>
                         <input class="weight calc-trigger" id="weightL1" value="10.0" />
                     </div>
-                </div>
-                <img id="p1mon" src="" alt="" class="poke-panel-sprite">
                 </div>
                 <div class="info-group i-f-stats">
                     <table>
@@ -506,6 +568,10 @@
                                     <option value="spe">Speed</option>
                                 </select>
                             </div>
+                            <label class="trace-copy-label" hidden title="Trace: use the opponent's current ability">
+                                <input type="checkbox" class="traceCopyOpponent calc-trigger" id="traceCopyL" aria-label="Trace copies the opponent's ability" />
+                            </label>
+                            <span class="commander-dondozo-mount"></span>
                             <div class="ability-toggle-strip">
                                 <input hidden type="checkbox" title= "Is this ability active?" class="abilityToggle calc-trigger">
                                 <select hidden aria-label="Allies fainted" class="alliesFainted calc-trigger">
@@ -580,8 +646,8 @@
                     <input class="move-bp calc-trigger" value="50" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL1" />
                     <label class="btn crit-btn" for="critL1" title="Force this attack to be a critical hit?">Crit</label>
@@ -614,8 +680,8 @@
                     <input class="move-bp calc-trigger" value="0" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL2" />
                     <label class="btn crit-btn" for="critL2" title="Force this attack to be a critical hit?">Crit</label>
@@ -648,8 +714,8 @@
                     <input class="move-bp calc-trigger" value="0" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL3" />
                     <label class="btn crit-btn" for="critL3" title="Force this attack to be a critical hit?">Crit</label>
@@ -682,8 +748,8 @@
                     <input class="move-bp calc-trigger" value="0" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL4" />
                     <label class="btn crit-btn" for="critL4" title="Force this attack to be a critical hit?">Crit</label>
@@ -717,6 +783,11 @@
                 <div>
                     <legend align="center">Team</legend>
                     <div id="team-poke-list" class="box-poke dropzone">
+                    </div>
+                </div>
+                <div id="tag-partner-team-section" class="tag-partner-team-section" hidden>
+                    <legend align="center">Tag Partner</legend>
+                    <div id="tag-partner-poke-list" class="box-poke tag-partner-poke-list">
                     </div>
                 </div>
                 <hr>
@@ -831,7 +902,7 @@
                             <label class="btn btn-xxxwide btn-mid" for="vessel">Vessel of Ruin</label>
                         </div>
                     </div>
-                    <br />
+                    <div class="field-aura-row">
                     <span class="visually-hidden" id="selectFieldAuraInstruction">Fairy Aura, Dark Aura, and Aura Break from other Pok&eacute;mon on the field.</span>
                     <input class="visually-hidden calc-trigger" type="checkbox" id="field-fairy-aura" />
                     <label class="btn btn-xxxwide btn-left" for="field-fairy-aura">Fairy Aura</label>
@@ -839,6 +910,7 @@
                     <label class="btn btn-xxxwide btn-mid" for="field-dark-aura">Dark Aura</label>
                     <input class="visually-hidden calc-trigger" type="checkbox" id="field-aura-break" />
                     <label class="btn btn-xxxwide btn-right" for="field-aura-break">Aura Break</label>
+                    </div>
                 </div>
                 <hr class="gen-specific g6 g7 g8 g9" />
                 <div aria-labelledby="selectWeatherInstruction" role="radiogroup">
@@ -1164,21 +1236,36 @@
                                 <button type="button" class="save-to-box" data-panel="p2">Save to box</button>
                             </div></td>
                         </tr>
+                        <tr>
+                            <td><div class="left" title="Remove the current player set from the box (if saved)">
+                                <button type="button" class="remove-from-box" data-panel="p1">Remove from box</button>
+                            </div></td>
+                            <td><div class="right" title="Remove the current opponent set from the box (if saved)">
+                                <button type="button" class="remove-from-box" data-panel="p2">Remove from box</button>
+                            </div></td>
+                        </tr>
                     </tbody>
                 </table>
-                <div class="icon-size-overlay" aria-hidden="true">
-                    <label for="icon-size-slider">Icon size</label>
-                    <input type="range" id="icon-size-slider" min="50" max="100" value="100" title="32px–64px">
                 </div>
+            </fieldset>
+            <fieldset id="battle-notes-panel" class="battle-notes-box" aria-label="Battle notes" role="region" hidden>
+                <legend class="team-box-title"></legend>
+                <div>
+                    <legend align="center">Battle Notes</legend>
+                    <textarea id="battle-notes-textarea" class="battle-notes-textarea" rows="6"></textarea>
                 </div>
-                <hr>
-                <div aria-label="Import team" role="region" style="margin-top: 20px;">
-                    <div align="center" style="font-size: inherit; font-weight: bold; margin: 10px 0; padding: 0;">Import / Export</div>
-                    <div id="import-1_wrapper" class="dataTables_wrapper no-footer">
-                        <form class="import-team">
-                            <input class="import-name-text" value="Custom Set"></input>
-                            <textarea class="import-team-text"></textarea>
-                        </form>
+            </fieldset>
+            <fieldset class="import-export-box" aria-label="Import and export" role="region">
+                <legend class="team-box-title"></legend>
+                <div>
+                    <legend align="center">Import / Export</legend>
+                    <div id="import-export-section" aria-label="Import team" role="region">
+                        <div id="import-1_wrapper" class="dataTables_wrapper no-footer">
+                            <form class="import-team">
+                                <input class="import-name-text" value="Custom Set"></input>
+                                <textarea class="import-team-text"></textarea>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </fieldset>
@@ -1195,7 +1282,7 @@
                 </span>
                 </div>
                 <div class="poke-top-row">
-                <div class="info-group top i-f-o-type">
+                <div class="info-group top i-f-o-type poke-top-primary">
                     <div>
                         <label>Type</label>
                         <select aria-label="Type 1" class="type1 terrain-trigger calc-trigger"></select>
@@ -1206,14 +1293,22 @@
                         <select class="teraType terrain-trigger calc-trigger"></select>
                         <input type="checkbox" title= "Has this Pok&eacute;mon terastalized?" class="teraToggle terrain-trigger calc-trigger">
                     </div>
-                    <div>
+                    <div class="poke-top-level-sprite-row">
+                    <div class="level-row-with-set-btn">
                         <label for="levelR1">Level</label>
                         <input class="level calc-trigger" id="levelR1" value="100" inputmode="decimal" type="number" min="1" max="100" step="1" />
+                    </div>
+                <div class="poke-panel-sprite-slot">
+                <img id="p2mon" src="" alt="" class="poke-panel-sprite">
+                </div>
                     </div>
                     <div class="hide gender-row">
                         <label>Gender</label>
                         <select class="gender calc-trigger"><option></option><option selected="selected">Male</option><option>Female</option></select>
                     </div>
+                </div>
+                </div>
+                <div class="info-group top i-f-o-type poke-top-forme-wrap">
                     <div class="hide forme-row">
                         <label>Forme</label>
                         <select class="forme calc-trigger"></select>
@@ -1222,8 +1317,6 @@
                         <label for="weightR1">Weight (kg)</label>
                         <input class="weight calc-trigger" id="weightR1" value="10.0" />
                     </div>
-                </div>
-                <img id="p2mon" src="" alt="" class="poke-panel-sprite">
                 </div>
                 <div class="info-group i-f-o-stats">
                     <table>
@@ -1542,6 +1635,10 @@
                                     <option value="spe">Speed</option>
                                 </select>
                             </div>
+                            <label class="trace-copy-label" hidden title="Trace: use the opponent's current ability">
+                                <input type="checkbox" class="traceCopyOpponent calc-trigger" id="traceCopyR" aria-label="Trace copies the opponent's ability" />
+                            </label>
+                            <span class="commander-dondozo-mount"></span>
                             <div class="ability-toggle-strip">
                                 <input hidden type="checkbox" title= "Is this ability active?" class="abilityToggle calc-trigger">
                                 <select hidden aria-label="Allies fainted" class="alliesFainted calc-trigger">
@@ -1614,8 +1711,8 @@
                     <input class="move-bp calc-trigger" value="50" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR1" />
                     <label class="btn crit-btn" for="critR1" title="Force this attack to be a critical hit?">Crit</label>
@@ -1648,8 +1745,8 @@
                     <input class="move-bp calc-trigger" value="0" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR2" />
                     <label class="btn crit-btn" for="critR2" title="Force this attack to be a critical hit?">Crit</label>
@@ -1682,8 +1779,8 @@
                     <input class="move-bp calc-trigger" value="0" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR3" />
                     <label class="btn crit-btn" for="critR3" title="Force this attack to be a critical hit?">Crit</label>
@@ -1716,8 +1813,8 @@
                     <input class="move-bp calc-trigger" value="0" />
                     <select class="move-type calc-trigger"></select>
                     <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                        <option value="Physical">Physical</option>
-                        <option value="Special">Special</option>
+                        <option value="Physical">Phys.</option>
+                        <option value="Special">Spec.</option>
                     </select>
                     <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR4" />
                     <label class="btn crit-btn" for="critR4" title="Force this attack to be a critical hit?">Crit</label>
@@ -1784,6 +1881,7 @@
         var linkExtension = '.template.html';
     </script>
     <script type="text/javascript" src="./js/vendor/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="./js/app-menu.js?"></script>
     <script type="text/javascript" src="./js/vendor/select2/select2.min.js"></script>
     <script type="text/javascript" src="./js/vendor/url-search-params-0.1.2.min.js"></script>
     <script type="text/javascript">
@@ -1841,15 +1939,8 @@
         <li><a href="https://github.com/smogon/damage-calc/contributors" class="links-lighten" target="_blank">Smogon Contributors</a></li>
         <li><a href="https://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-damage-calculator.3593546/" class="links-lighten" target="_blank">Smogon Bug Reports</a></li>
         <li><a href="https://github.com/smogon/damage-calc" class="links-lighten" target="_blank">Smogon GitHub repository</a></li></ul>
-    
-        <div class="theme-picker" role="group" aria-label="Color theme">
-            <span class="theme-picker-label">Theme:</span>
-            <button type="button" class="theme-option" data-theme="light" aria-pressed="false">Light</button>
-            <button type="button" class="theme-option" data-theme="dark" aria-pressed="false">Dark</button>
-            <button type="button" class="theme-option" data-theme="original" aria-pressed="false" title="Original calculator dark colors">Original</button>
-        </div>
-        <script type="text/javascript" src="./js/dark-theme-toggle.js?"></script>
     </div>
+    <script type="text/javascript" src="./js/dark-theme-toggle.js?"></script>
 
 
 </body>

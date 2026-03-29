@@ -11171,6 +11171,19 @@ var SETDEX_SV = {
   },
   "Lanturn": {
     "Fisherman Elliot & Fisherman Ned": {
+      "level": 44,
+      "ability": "Volt Absorb",
+      "moves": [
+        "Surf",
+        "Thunderbolt",
+        "Volt Switch",
+        "Ice Beam"
+      ],
+      "nature": "Modest",
+      "item": "Luminous Moss",
+      "index": 573
+    },
+    "Fisherman Elliot & Fisherman Ned #2": {
       "level": 43,
       "ability": "Water Absorb",
       "moves": [
@@ -28295,7 +28308,7 @@ var SETDEX_SV = {
   "Greninja-Mega": {
     "Parasol Lady Angelica": {
       "level": 77,
-      "ability": "Sniper",
+      "ability": "Protean",
       "moves": [
         "Snipe Shot",
         "Night Slash",
@@ -28308,7 +28321,7 @@ var SETDEX_SV = {
     },
     "Elite Four Sidney Singles": {
       "level": 100,
-      "ability": "Sniper",
+      "ability": "Protean",
       "moves": [
         "Muddy Water",
         "Night Daze",
@@ -28338,7 +28351,7 @@ var SETDEX_SV = {
   "Delphox-Mega": {
     "Cooltrainer Melodic": {
       "level": 79,
-      "ability": "Dazzling",
+      "ability": "Levitate",
       "moves": [
         "Fire Blast",
         "Psystrike",
@@ -28351,7 +28364,7 @@ var SETDEX_SV = {
     },
     "Gentleman Clifford & Psychic Macey": {
       "level": 86,
-      "ability": "Dazzling",
+      "ability": "Levitate",
       "moves": [
         "Psych Up",
         "Psystrike",
@@ -28497,7 +28510,7 @@ var SETDEX_SV = {
   "Chesnaught-Mega": {
     "Cooltrainer Marcel": {
       "level": 80,
-      "ability": "Quick Draw",
+      "ability": "Bulletproof",
       "moves": [
         "Needle Arm",
         "Body Press",

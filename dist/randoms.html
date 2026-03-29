@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Pok&eacute;mon Damage Calculator</title>
+    <title>Pok&eacute;mon Null Damage Calculator</title>
     <link type="text/css" rel="stylesheet" href="./js/vendor/select2/select2.css" />
     <link type="text/css" rel="stylesheet" href="./css/main.css?" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
@@ -41,7 +41,7 @@
 <div class="wrapper">
 
     <div aria-label="Settings" role="region">
-        <span class="title-text">Pok&eacute;mon Damage Calculator</span>
+        <span class="title-text">Pok&eacute;mon Null Damage Calculator</span>
         <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation.">
             <span class="visually-hidden" id="selectGenInstruction">Select the generation.</span>
             <input class="gen visually-hidden" type="radio" name="gen" value="1" id="gen1" /><label class="btn btn-small btn-left" for="gen1">RBY</label>
@@ -534,8 +534,8 @@
                 <input class="move-bp calc-trigger" value="50" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL1" />
                 <label class="btn crit-btn" for="critL1" title="Force this attack to be a critical hit?">Crit</label>
@@ -568,8 +568,8 @@
                 <input class="move-bp calc-trigger" value="0" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL2" />
                 <label class="btn crit-btn" for="critL2" title="Force this attack to be a critical hit?">Crit</label>
@@ -602,8 +602,8 @@
                 <input class="move-bp calc-trigger" value="0" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL3" />
                 <label class="btn crit-btn" for="critL3" title="Force this attack to be a critical hit?">Crit</label>
@@ -636,8 +636,8 @@
                 <input class="move-bp calc-trigger" value="0" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critL4" />
                 <label class="btn crit-btn" for="critL4" title="Force this attack to be a critical hit?">Crit</label>
@@ -734,7 +734,7 @@
                             <label class="btn btn-xxxwide btn-mid" for="vessel">Vessel of Ruin</label>
                         </div>
                     </div>
-                    <br />
+                    <div class="field-aura-row">
                     <span class="visually-hidden" id="selectFieldAuraInstruction">Fairy Aura, Dark Aura, and Aura Break from other Pok&eacute;mon on the field.</span>
                     <input class="visually-hidden calc-trigger" type="checkbox" id="field-fairy-aura" />
                     <label class="btn btn-xxxwide btn-left" for="field-fairy-aura">Fairy Aura</label>
@@ -742,6 +742,7 @@
                     <label class="btn btn-xxxwide btn-mid" for="field-dark-aura">Dark Aura</label>
                     <input class="visually-hidden calc-trigger" type="checkbox" id="field-aura-break" />
                     <label class="btn btn-xxxwide btn-right" for="field-aura-break">Aura Break</label>
+                    </div>
                 </div>
                 <hr class="gen-specific g6 g7 g8 g9" />
                 <div aria-labelledby="selectWeatherInstruction" role="radiogroup">
@@ -1420,8 +1421,8 @@
                 <input class="move-bp calc-trigger" value="50" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR1" />
                 <label class="btn crit-btn" for="critR1" title="Force this attack to be a critical hit?">Crit</label>
@@ -1454,8 +1455,8 @@
                 <input class="move-bp calc-trigger" value="0" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR2" />
                 <label class="btn crit-btn" for="critR2" title="Force this attack to be a critical hit?">Crit</label>
@@ -1488,8 +1489,8 @@
                 <input class="move-bp calc-trigger" value="0" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR3" />
                 <label class="btn crit-btn" for="critR3" title="Force this attack to be a critical hit?">Crit</label>
@@ -1522,8 +1523,8 @@
                 <input class="move-bp calc-trigger" value="0" />
                 <select class="move-type calc-trigger"></select>
                 <select class="move-cat calc-trigger gen-specific g4 g5 g6 g7 g8 g9">
-                    <option value="Physical">Physical</option>
-                    <option value="Special">Special</option>
+                    <option value="Physical">Phys.</option>
+                    <option value="Special">Spec.</option>
                 </select>
                 <input aria-describedby="criticalHitInstruction" class="move-crit calc-trigger visually-hidden" type="checkbox" id="critR4" />
                 <label class="btn crit-btn" for="critR4" title="Force this attack to be a critical hit?">Crit</label>

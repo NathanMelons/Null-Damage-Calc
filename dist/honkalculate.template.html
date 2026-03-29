@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Pok&eacute;mon Damage Calculator</title>
+    <title>Pok&eacute;mon Null Damage Calculator</title>
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css" />
     <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/colvis/1.1.1/css/dataTables.colVis.css" />
@@ -46,6 +46,7 @@
                         document.documentElement.classList.add('theme-original-dark');
                     }
                 }
+                document.documentElement.setAttribute('data-theme', theme);
             })();
         </script>
 </head>
@@ -68,7 +69,7 @@
 <div class="wrapper">
 
     <div>
-        <span class="title-text">Pok&eacute;mon Damage Calculator</span>
+        <span class="title-text">Pok&eacute;mon Null Damage Calculator</span>
         <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation.">
             <input class="gen visually-hidden" type="radio" name="gen" value="1" id="gen1" /><label class="btn btn-small btn-left" for="gen1">RBY</label>
             <input class="gen visually-hidden" type="radio" name="gen" value="2" id="gen2" /><label class="btn btn-small btn-mid" for="gen2">GSC</label>
@@ -473,8 +474,8 @@
                         <input class="move-bp" value="50" />
                         <select class="move-type"></select>
                         <select class="move-cat gen-specific g4 g5 g6 g7 g8 g9">
-                            <option value="Physical">Physical</option>
-                            <option value="Special">Special</option>
+                            <option value="Physical">Phys.</option>
+                            <option value="Special">Spec.</option>
                         </select>
                         <input class="move-crit visually-hidden" type="checkbox" id="critL1" />
                         <label class="btn crit-btn" for="critL1" title="Force this attack to be a critical hit?">Crit</label>
@@ -507,8 +508,8 @@
                         <input class="move-bp" value="0" />
                         <select class="move-type"></select>
                         <select class="move-cat gen-specific g4 g5 g6 g7 g8 g9">
-                            <option value="Physical">Physical</option>
-                            <option value="Special">Special</option>
+                            <option value="Physical">Phys.</option>
+                            <option value="Special">Spec.</option>
                         </select>
                         <input class="move-crit visually-hidden" type="checkbox" id="critL2" />
                         <label class="btn crit-btn" for="critL2" title="Force this attack to be a critical hit?">Crit</label>
@@ -541,8 +542,8 @@
                         <input class="move-bp" value="0" />
                         <select class="move-type"></select>
                         <select class="move-cat gen-specific g4 g5 g6 g7 g8 g9">
-                            <option value="Physical">Physical</option>
-                            <option value="Special">Special</option>
+                            <option value="Physical">Phys.</option>
+                            <option value="Special">Spec.</option>
                         </select>
                         <input class="move-crit visually-hidden" type="checkbox" id="critL3" />
                         <label class="btn crit-btn" for="critL3" title="Force this attack to be a critical hit?">Crit</label>
@@ -575,8 +576,8 @@
                         <input class="move-bp" value="0" />
                         <select class="move-type"></select>
                         <select class="move-cat gen-specific g4 g5 g6 g7 g8 g9">
-                            <option value="Physical">Physical</option>
-                            <option value="Special">Special</option>
+                            <option value="Physical">Phys.</option>
+                            <option value="Special">Spec.</option>
                         </select>
                         <input class="move-crit visually-hidden" type="checkbox" id="critL4" />
                         <label class="btn crit-btn" for="critL4" title="Force this attack to be a critical hit?">Crit</label>
@@ -655,7 +656,7 @@
 										<label class="btn btn-xxxwide btn-mid" for="vessel">Vessel of Ruin</label>
 									</div>
 								</div>
-								<br />
+								<div class="field-aura-row">
 								<span class="visually-hidden" id="selectFieldAuraInstruction">Fairy Aura, Dark Aura, and Aura Break from other Pok&eacute;mon on the field.</span>
 								<input class="visually-hidden calc-trigger" type="checkbox" id="field-fairy-aura" />
 								<label class="btn btn-xxxwide btn-left" for="field-fairy-aura">Fairy Aura</label>
@@ -663,6 +664,7 @@
 								<label class="btn btn-xxxwide btn-mid" for="field-dark-aura">Dark Aura</label>
 								<input class="visually-hidden calc-trigger" type="checkbox" id="field-aura-break" />
 								<label class="btn btn-xxxwide btn-right" for="field-aura-break">Aura Break</label>
+								</div>
 						  </div>
                     <hr class="gen-specific g6 g7 g8 g9" />
                     <div class="gen-specific g3 g4 g5 g6 g7 g8 g9" style="width: 22.2em; margin: 5px auto;" title="Select the current weather condition.">
@@ -960,9 +962,9 @@
             <li><a href="https://github.com/smogon/damage-calc" class="links-lighten" target="_blank">GitHub repository</a></li></ul>
             <div class="theme-picker" role="group" aria-label="Color theme">
                 <span class="theme-picker-label">Theme:</span>
+                <button type="button" class="theme-option" data-theme="original" aria-pressed="false" title="Original calculator dark colors">Original</button>
                 <button type="button" class="theme-option" data-theme="light" aria-pressed="false">Light</button>
                 <button type="button" class="theme-option" data-theme="dark" aria-pressed="false">Dark</button>
-                <button type="button" class="theme-option" data-theme="original" aria-pressed="false" title="Original calculator dark colors">Original</button>
             </div>
             <script type="text/javascript" src="./js/dark-theme-toggle.js?"></script>
     </div>

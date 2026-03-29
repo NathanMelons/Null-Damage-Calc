@@ -11,8 +11,7 @@ function placeBsBtn() {
 	});
 }
 
-function ExportPokemon(pokeInfo) {
-	var pokemon = createPokemon(pokeInfo);
+function pokemonToExportText(pokemon) {
 	var EV_counter = 0;
 	var finalText = "";
 	finalText = pokemon.name + (pokemon.item ? " @ " + pokemon.item : "") + "\n";
@@ -56,8 +55,195 @@ function ExportPokemon(pokeInfo) {
 			finalText += "- " + moveName + "\n";
 		}
 	}
-	finalText = finalText.trim();
+	return finalText.trim();
+}
+
+/** Species names from pokedex.otherFormes that are Mega formes (e.g. Aerodactyl-Mega). */
+function getMegaOtherFormeSpeciesNames(baseSpeciesName) {
+	if (!baseSpeciesName || typeof pokedex === "undefined") return [];
+	if (baseSpeciesName.indexOf("-Mega") !== -1) return [];
+	var spec = pokedex[baseSpeciesName];
+	if (!spec || !spec.otherFormes || !spec.otherFormes.length) return [];
+	var out = [];
+	for (var i = 0; i < spec.otherFormes.length; i++) {
+		var f = spec.otherFormes[i];
+		if (f.indexOf("-Mega") !== -1) out.push(f);
+	}
+	return out;
+}
+
+function getMegaAbilityForSpecies(megaName) {
+	if (!megaName || typeof pokedex === "undefined" || !pokedex[megaName]) return null;
+	var ab = pokedex[megaName].abilities;
+	if (!ab) return null;
+	return ab[0] || ab["0"] || null;
+}
+
+/** Resolves the held item for an exported mega: mega stone when one exists (incl. X/Y), else base item (e.g. Rayquaza). */
+function getMegaItemForExport(baseItem, megaSpeciesName) {
+	var stone = getMegaStoneItemForMegaSpecies(megaSpeciesName);
+	if (stone) return stone;
+	return baseItem || "";
+}
+
+function getMegaStoneItemForMegaSpecies(megaName) {
+	if (!megaName || typeof pokedex === "undefined" || !pokedex[megaName]) return null;
+	var base = pokedex[megaName].baseSpecies;
+	if (!base || typeof calc === "undefined" || !calc.MEGA_STONES) return null;
+	var candidates = [];
+	for (var stone in calc.MEGA_STONES) {
+		if (!Object.prototype.hasOwnProperty.call(calc.MEGA_STONES, stone)) continue;
+		if (calc.MEGA_STONES[stone] === base) candidates.push(stone);
+	}
+	if (candidates.length === 0) return null;
+	if (candidates.length === 1) return candidates[0];
+	if (megaName.indexOf("-Mega-X") !== -1) {
+		for (var i = 0; i < candidates.length; i++) {
+			if (candidates[i].indexOf(" X") !== -1) return candidates[i];
+		}
+	}
+	if (megaName.indexOf("-Mega-Y") !== -1) {
+		for (var j = 0; j < candidates.length; j++) {
+			if (candidates[j].indexOf(" Y") !== -1) return candidates[j];
+		}
+	}
+	return candidates[0];
+}
+
+/** Build a calc.Pokemon for mega export: same spread/moves as base, mega ability and stone (or base item if no stone). */
+function buildMegaPokemonFromBasePokemon(basePokemon, megaSpeciesName) {
+	if (!basePokemon || !megaSpeciesName || typeof pokedex === "undefined" || !pokedex[megaSpeciesName] || typeof calc === "undefined") return null;
+	var megaAbility = getMegaAbilityForSpecies(megaSpeciesName);
+	var megaItem = getMegaItemForExport(basePokemon.item, megaSpeciesName);
+	var megaMoves = [];
+	for (var i = 0; i < 4; i++) {
+		var m = basePokemon.moves[i];
+		if (!m || !m.name || m.name === "(No Move)") {
+			megaMoves.push(new calc.Move(gen, "(No Move)", { ability: megaAbility, item: megaItem, species: megaSpeciesName }));
+		} else {
+			megaMoves.push(new calc.Move(gen, m.originalName || m.name, {
+				ability: megaAbility,
+				item: megaItem,
+				species: megaSpeciesName,
+				useZ: m.useZ,
+				useMax: m.useMax,
+				isCrit: m.isCrit,
+				hits: m.hits,
+				timesUsed: m.timesUsed,
+				timesUsedWithMetronome: m.timesUsedWithMetronome,
+				overrides: m.overrides
+			}));
+		}
+	}
+	return new calc.Pokemon(gen, megaSpeciesName, {
+		level: basePokemon.level,
+		ability: megaAbility,
+		abilityOn: true,
+		item: megaItem,
+		nature: basePokemon.nature,
+		ivs: basePokemon.ivs,
+		evs: basePokemon.evs,
+		boosts: basePokemon.boosts,
+		gender: basePokemon.gender,
+		teraType: basePokemon.teraType,
+		moves: megaMoves,
+		isDynamaxed: false
+	});
+}
+
+/** Plain set object for dex/box: same fields as getSetFromForm, with mega ability and item. */
+function buildMegaSetObjFromBasePoke(basePoke, megaName) {
+	if (!basePoke || !megaName || typeof resolveSetdexKey !== "function" || typeof setdex === "undefined") return null;
+	if (typeof pokedex === "undefined" || !pokedex[megaName]) return null;
+	var megaAbility = getMegaAbilityForSpecies(megaName);
+	var megaItem = getMegaStoneItemForMegaSpecies(megaName);
+	if (!megaItem) megaItem = basePoke.item || undefined;
+	var evs = {};
+	var ivs = {};
+	for (var i = 0; i < LEGACY_STATS[gen].length; i++) {
+		var legacyStat = LEGACY_STATS[gen][i];
+		evs[legacyStat] = (basePoke.evs && typeof basePoke.evs[legacyStat] !== "undefined") ? basePoke.evs[legacyStat] : 0;
+		ivs[legacyStat] = (gen >= 3 && basePoke.ivs && typeof basePoke.ivs[legacyStat] !== "undefined") ? basePoke.ivs[legacyStat] : 31;
+	}
+	var moves = [];
+	for (var j = 0; j < 4; j++) {
+		var moveName = basePoke.moves[j];
+		moves.push(moveName && moveName !== "(No Move)" ? moveName : "");
+	}
+	var setdexKey = resolveSetdexKey(megaName);
+	var nameProp = basePoke.nameProp;
+	var megaPoke = {
+		name: megaName,
+		nameProp: nameProp,
+		level: basePoke.level,
+		ability: megaAbility || undefined,
+		item: megaItem || undefined,
+		nature: basePoke.nature || undefined,
+		evs: evs,
+		ivs: ivs,
+		moves: moves,
+		isCustomSet: true
+	};
+	if (gen >= 9 && basePoke.teraType) megaPoke.teraType = basePoke.teraType;
+	var existingSet = setdex[setdexKey] && setdex[setdexKey][nameProp] ? setdex[setdexKey][nameProp] : null;
+	if (existingSet && existingSet.index !== undefined) megaPoke.index = existingSet.index;
+	return megaPoke;
+}
+
+/** When Import Megas Automatically is on: append export blocks for each mega using the same spread as the exported Pokémon. */
+function appendMegaExportsForPokemon(basePokemon) {
+	if (typeof importMegasAutoIsOn !== "function" || !importMegasAutoIsOn()) return "";
+	if (typeof createPokemon !== "function" || typeof calc === "undefined") return "";
+	if ($("#randoms").prop("checked")) return "";
+	var megas = getMegaOtherFormeSpeciesNames(basePokemon.name);
+	if (megas.length === 0) return "";
+	var parts = [];
+	for (var m = 0; m < megas.length; m++) {
+		var megaName = megas[m];
+		try {
+			var megaMon = buildMegaPokemonFromBasePokemon(basePokemon, megaName);
+			if (megaMon) parts.push(pokemonToExportText(megaMon));
+		} catch (e) {
+			/* skip malformed */
+		}
+	}
+	return parts.length ? "\n\n" + parts.join("\n\n") : "";
+}
+
+/** When Import Megas Automatically is on: also save each mega form with the same spread as the base set. */
+function appendMegaSavesForSpecies(basePoke) {
+	if (typeof importMegasAutoIsOn !== "function" || !importMegasAutoIsOn()) return;
+	if (typeof resolveSetdexKey !== "function" || typeof setdex === "undefined") return;
+	if ($("#randoms").prop("checked")) return;
+	if (!basePoke || !basePoke.name) return;
+	var megas = getMegaOtherFormeSpeciesNames(basePoke.name);
+	for (var m = 0; m < megas.length; m++) {
+		var megaName = megas[m];
+		var megaPoke = buildMegaSetObjFromBasePoke(basePoke, megaName);
+		if (megaPoke) {
+			addToDex(megaPoke);
+		}
+	}
+}
+
+function ExportPokemon(pokeInfo) {
+	var pokemon = createPokemon(pokeInfo);
+	var finalText = pokemonToExportText(pokemon);
+	finalText += appendMegaExportsForPokemon(pokemon);
 	$("textarea.import-team-text").val(finalText);
+	var panelId = pokeInfo && pokeInfo.attr ? pokeInfo.attr("id") : null;
+	if (panelId === "p1" || panelId === "p2") {
+		if (typeof getSetFromForm === "function") {
+			var poke = getSetFromForm(panelId);
+			if (poke) {
+				var customName = $(".import-name-text").val();
+				if (customName !== undefined && customName !== null && String(customName).trim() !== "") {
+					poke.nameProp = String(customName).trim();
+				}
+				appendMegaSavesForSpecies(poke);
+			}
+		}
+	}
 }
 
 $("#exportL").click(function () {
@@ -82,6 +268,70 @@ $(document).on("click", ".save-to-box", function () {
 		if (typeof addBoxed === "function") {
 			addBoxed(poke);
 		}
+		appendMegaSavesForSpecies(poke);
+	}
+});
+
+function deleteMovesetFromAllSetdex(pokemonName, movesetName) {
+	if (!pokemonName || typeof movesetName === "undefined") return;
+	var tables = [
+		SETDEX_SV, SETDEX_SS, SETDEX_SM, SETDEX_XY, SETDEX_BW, SETDEX_DPP,
+		SETDEX_ADV, SETDEX_GSC, SETDEX_RBY
+	];
+	for (var t = 0; t < tables.length; t++) {
+		var dex = tables[t];
+		if (!dex || !dex[pokemonName]) continue;
+		if (dex[pokemonName][movesetName] !== undefined) {
+			delete dex[pokemonName][movesetName];
+		}
+		if (Object.keys(dex[pokemonName]).length === 0) {
+			delete dex[pokemonName];
+		}
+	}
+}
+
+/** Remove the current panel's species + set name from custom box storage and UI (mirrors Save to box keys). */
+function removeCurrentSetFromBox(panelId) {
+	if ($("#randoms").prop("checked")) return false;
+	if (typeof getSetFromForm !== "function") return false;
+	var poke = getSetFromForm(panelId);
+	if (!poke) return false;
+	var customName = $(".import-name-text").val();
+	if (customName !== undefined && customName !== null && String(customName).trim() !== "") {
+		poke.nameProp = String(customName).trim();
+	}
+	if (!localStorage.customsets) return false;
+	var customsets = JSON.parse(localStorage.customsets);
+	if (!customsets[poke.name] || !customsets[poke.name][poke.nameProp]) return false;
+	delete customsets[poke.name][poke.nameProp];
+	if (Object.keys(customsets[poke.name]).length === 0) {
+		delete customsets[poke.name];
+	}
+	if (poke.name === "Aegislash-Blade" && customsets["Aegislash-Shield"] && customsets["Aegislash-Shield"][poke.nameProp]) {
+		delete customsets["Aegislash-Shield"][poke.nameProp];
+		if (Object.keys(customsets["Aegislash-Shield"]).length === 0) {
+			delete customsets["Aegislash-Shield"];
+		}
+	}
+	deleteMovesetFromAllSetdex(poke.name, poke.nameProp);
+	if (poke.name === "Aegislash-Blade") {
+		deleteMovesetFromAllSetdex("Aegislash-Shield", poke.nameProp);
+	}
+	var el = document.getElementById(poke.name + poke.nameProp);
+	if (el) el.remove();
+	if (poke.name === "Aegislash-Blade") {
+		var el2 = document.getElementById("Aegislash-Shield" + poke.nameProp);
+		if (el2) el2.remove();
+	}
+	localStorage.customsets = JSON.stringify(customsets);
+	return true;
+}
+
+$(document).on("click", ".remove-from-box", function () {
+	if ($("#randoms").prop("checked")) return;
+	var panelId = $(this).data("panel") || "p1";
+	if (!removeCurrentSetFromBox(panelId)) {
+		alert("This set is not in the box (or no Pok\u00e9mon selected).");
 	}
 });
 
@@ -284,8 +534,12 @@ function updateDex(customsets) {
 			SETDEX_GSC[pokemon][moveset] = customsets[pokemon][moveset];
 			if (!SETDEX_RBY[pokemon]) SETDEX_RBY[pokemon] = {};
 			SETDEX_RBY[pokemon][moveset] = customsets[pokemon][moveset];
-			var poke = {name: pokemon, nameProp: moveset};	
-			addBoxed(poke);
+			var poke = {name: pokemon, nameProp: moveset};
+			var useBox2 =
+				typeof megasBox2IsOn === "function" &&
+				megasBox2IsOn() &&
+				pokemon.indexOf("-Mega") !== -1;
+			addBoxed(poke, useBox2 ? "box-poke-list2" : undefined);
 		}
 	}
 	localStorage.customsets = JSON.stringify(customsets);
@@ -316,6 +570,7 @@ function addSets(pokes, name) {
 				currentPoke = getMoves(currentPoke, rows, i);
 				addToDex(currentPoke);
 				addBoxed(currentPoke);
+				appendMegaSavesForSpecies(currentPoke);
 				addedpokes++;
 				break;
 			}
