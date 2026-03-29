@@ -1344,16 +1344,14 @@ table.field {
 .mon-speed-none{
     outline: none !important;
 }
-/* Speed row: .total lines up with other stats (same inline 2.5em); indicator is out-of-flow, anchored to td */
+/* Speed: same Total column width as other stats — do not pad td (padding widens the column for every row). */
 .sp-total-with-speed-cell {
-    position: relative;
     overflow: visible;
     white-space: nowrap;
     vertical-align: middle;
-    padding-right: 2.75rem;
-    box-sizing: border-box;
 }
 .sp-total-and-speed {
+    position: relative;
     display: inline-block;
     width: auto;
     vertical-align: baseline;
@@ -1361,14 +1359,13 @@ table.field {
 .sp-total-and-speed .total {
     font-variant-numeric: tabular-nums;
 }
-/* Nearest positioned ancestor is td — keeps glyph at cell right without shifting the number */
-.sp-total-with-speed-cell .speed-indicator {
+.sp-total-and-speed .speed-indicator {
     position: absolute;
-    right: 0;
+    left: 100%;
+    right: auto;
     top: 50%;
-    left: auto;
-    transform: translate(12px, -50%);
-    margin-left: 0;
+    transform: translateY(-50%);
+    margin-left: 2.9em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1378,11 +1375,11 @@ table.field {
     line-height: 1;
     pointer-events: none;
     z-index: 1;
-    width: 2.5rem;
-    min-width: 2.5rem;
+    width: max-content;
+    min-width: 0;
 }
 /* Square cell so « + rotate() shares the same optical center as "-" (faster was skewing left) */
-.sp-total-with-speed-cell .speed-indicator > div {
+.sp-total-and-speed .speed-indicator > div {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1617,7 +1614,7 @@ html.icon-size-small .opposing-team-box .trainer-pok-list-opposing {
 .poke-top-row .info-group .gender-row {
     margin-top: 2px;
 }
-/* Top-of-panel preview: same pixel size as big icons; same PNG as team icons (getSrcImgPokemon) */
+/* Top-of-panel preview: same pixel size as big icons; always full-size sprite (getSrcImgPokemon(..., true)) */
 .poke-panel-sprite,
 #p1mon, #p2mon {
     flex-shrink: 0;

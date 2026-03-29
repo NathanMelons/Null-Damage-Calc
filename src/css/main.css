@@ -1344,7 +1344,7 @@ table.field {
 .mon-speed-none{
     outline: none !important;
 }
-/* Speed row: .total lines up with other stats (same inline 2.5em); indicator is out-of-flow, anchored to td */
+/* Speed row: .total lines up with other stats; indicator is out-of-flow, hard-anchored to td right (not after variable-width .total). */
 .sp-total-with-speed-cell {
     position: relative;
     overflow: visible;
@@ -1617,7 +1617,7 @@ html.icon-size-small .opposing-team-box .trainer-pok-list-opposing {
 .poke-top-row .info-group .gender-row {
     margin-top: 2px;
 }
-/* Top-of-panel preview: same pixel size as big icons; same PNG as team icons (getSrcImgPokemon) */
+/* Top-of-panel preview: same pixel size as big icons; always full-size sprite (getSrcImgPokemon(..., true)) */
 .poke-panel-sprite,
 #p1mon, #p2mon {
     flex-shrink: 0;

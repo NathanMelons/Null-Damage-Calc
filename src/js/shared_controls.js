@@ -994,10 +994,9 @@ function buildTagPartnerTeamHtml(sortedPoks) {
 		} catch (e) {}
 		var pok_name = normalizeTrainerIconSpeciesName(pok_name_raw);
 		var poke = { name: pok_name };
-		var spriteSrc = getSrcImgPokemon(poke);
 		var idAttr = sortedPoks[i].split("]")[1];
 		var pok =
-			`<img class="trainer-pok tag-partner-pok" src="${spriteSrc}" alt="" data-id="${idAttr}" title="${sortedPoks[i]}, ${sortedPoks[i]} BP">`;
+			`<img class="trainer-pok tag-partner-pok" ${pokemonIconImgSrcAttributes(poke, false)} alt="" data-id="${idAttr}" title="${sortedPoks[i]}, ${sortedPoks[i]} BP">`;
 		trpok_html += pok;
 	}
 	return trpok_html;
@@ -1088,9 +1087,8 @@ function renderTrainerTeamBox(trainerNameOrFullSet, boxIndex, displayTrainerName
 		} catch (e) {}
 		var pok_name = normalizeTrainerIconSpeciesName(pok_name_raw);
 		var poke = { name: pok_name };
-		var spriteSrc = getSrcImgPokemon(poke);
 		var pok =
-			`<img class="trainer-pok right-side" src="${spriteSrc}" data-id="${sortedPoks[i].split("]")[1]}" data-trainer-name="${safeTrainer}" data-trainer-index="${boxIndex}" title="${sortedPoks[i]}, ${sortedPoks[i]} BP">`;
+			`<img class="trainer-pok right-side" ${pokemonIconImgSrcAttributes(poke, false)} data-id="${sortedPoks[i].split("]")[1]}" data-trainer-name="${safeTrainer}" data-trainer-index="${boxIndex}" title="${sortedPoks[i]}, ${sortedPoks[i]} BP">`;
 		trpok_html += pok;
 	}
 	return {
@@ -2784,7 +2782,7 @@ function addBoxed(poke, boxListId) {
 	var newPoke = document.createElement("img");
 	newPoke.id = id;
 	newPoke.className = "trainer-pok left-side";
-	newPoke.src = getSrcImgPokemon(poke);
+	setPokemonIconImgSrc(newPoke, poke, false);
 	newPoke.dataset.id = `${poke.name} (${poke.nameProp})`
 	newPoke.addEventListener("dragstart", dragstart_handler);
 	listEl.appendChild(newPoke)
@@ -2838,7 +2836,8 @@ function getPokemonIconsBase() {
 	return "./icons/";
 }
 
-function getSrcImgPokemon(poke) {
+/** @param {boolean} [alwaysFullSizeIcon] If true, use full-size sprites (same as big icon mode); used for top-of-panel previews. */
+function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	if (!poke) {
 		return;
 	}
@@ -2869,9 +2868,43 @@ function getSrcImgPokemon(poke) {
 	}
 	iconName = iconName.replace(/ /g, "-");
 	var base = getPokemonIconsBase();
-	// Always use full-size PNGs: html.icon-size-small scales them in CSS (many deploys omit *-small.png).
-	// alwaysFullSizeIcon kept for callers; same URL as team/box icons.
-	return base + iconName + ".png";
+	var useSmall =
+		!alwaysFullSizeIcon &&
+		typeof localStorage !== "undefined" &&
+		localStorage.getItem("icon-size-mode") === "small";
+	return useSmall ? base + iconName + "-small.png" : base + iconName + ".png";
+}
+
+/** For <img> attributes: `*-small.png` in small mode, with onerror fallback to full PNG if missing. */
+function pokemonIconImgSrcAttributes(poke, alwaysFullForThisImg) {
+	var primary = getSrcImgPokemon(poke, alwaysFullForThisImg);
+	var full = getSrcImgPokemon(poke, true);
+	if (!primary) return "";
+	if (primary === full) {
+		return 'src="' + escapeAttr(primary) + '"';
+	}
+	return (
+		'src="' +
+		escapeAttr(primary) +
+		'" data-icon-fallback="' +
+		escapeAttr(full) +
+		'" onerror="var f=this.dataset.iconFallback;if(f){this.onerror=null;this.src=f;}"'
+	);
+}
+
+function setPokemonIconImgSrc(img, poke, alwaysFullSizeIcon) {
+	if (!img || !poke) return;
+	var primary = getSrcImgPokemon(poke, alwaysFullSizeIcon);
+	var full = getSrcImgPokemon(poke, true);
+	img.src = primary || "";
+	if (primary && full && primary !== full) {
+		img.onerror = function () {
+			img.onerror = null;
+			img.src = full;
+		};
+	} else {
+		img.onerror = null;
+	}
 }
 
 function topPokemonIcon(fullname, node) {
@@ -2881,7 +2914,7 @@ function topPokemonIcon(fullname, node) {
 		var it = $panel.find(".item").val();
 		if (it) mon.item = it;
 	}
-	node.src = getSrcImgPokemon(mon);
+	setPokemonIconImgSrc(node, mon, true);
 }
 
 function refreshTeamGridPokemonIconSrcs() {
@@ -2896,7 +2929,7 @@ function refreshTeamGridPokemonIconSrcs() {
 			pok_name = decodeURIComponent(pok_name);
 		} catch (e) {}
 		var pok_norm = normalizeTrainerIconSpeciesName(pok_name);
-		this.src = getSrcImgPokemon({ name: pok_norm });
+		setPokemonIconImgSrc(this, { name: pok_norm }, false);
 	});
 }
 
@@ -3411,7 +3444,7 @@ $(document).ready(function () {
 		dropzone.ondragover=allowDrop;
 	}
 	initTeamPokeListObserver();
-	// Small: flex row + CSS height 30px; same docs/icons/*.png as big (scaled in CSS).
+	// Small: flex row + docs/icons/*-small.png (fallback to *.png if missing). Big: 64×64 + full PNG.
 	var ICON_SIZE_BIG_PX = 64;
 	var ICON_ORIGINAL_ROW_PX = 30;
 	var iconSizeSmallBtn = document.getElementById("icon-size-small");
