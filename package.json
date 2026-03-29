@@ -41,7 +41,8 @@
     "bundle": "subpkg run bundle",
     "build": "subpkg run build && node build view",
     "test": "subpkg run test && npm run build && eslint --cache src --ext js",
-    "postinstall": "subpkg install"
+    "postinstall": "subpkg install",
+    "icons:manifest": "node scripts/generate-icons-manifest.mjs"
   },
   "subPackages": [
     "calc"
