@@ -2815,6 +2815,21 @@ function normalizeTrainerIconSpeciesName(pok_name) {
 	return pok_name;
 }
 
+/** Canonical species assets live under repo/docs/icons/. Override with window.POKEMON_ICONS_BASE if needed. */
+function getPokemonIconsBase() {
+	if (typeof window !== "undefined" && window.POKEMON_ICONS_BASE) {
+		var b = String(window.POKEMON_ICONS_BASE);
+		return b.charAt(b.length - 1) === "/" ? b : b + "/";
+	}
+	var p = (typeof window !== "undefined" && window.location && window.location.pathname) ? window.location.pathname : "";
+	// Page under .../docs/ (e.g. docs/index.html): icons are ./icons/ next to the HTML file
+	if (/\/docs(\/|$)/.test(p)) {
+		return "./icons/";
+	}
+	// dist/, src/, etc.: sibling docs/icons
+	return "../docs/icons/";
+}
+
 /** @param {boolean} [alwaysFullSizeIcon] If true, use full-size sprites (same as big icon mode); used for top-of-panel previews. */
 function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	if (!poke) {
@@ -2849,7 +2864,8 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	var useSmall =
 		!alwaysFullSizeIcon &&
 		typeof localStorage !== "undefined" && localStorage.getItem("icon-size-mode") === "small";
-	return useSmall ? `./icons/${iconName}-small.png` : `./icons/${iconName}.png`;
+	var base = getPokemonIconsBase();
+	return useSmall ? base + iconName + "-small.png" : base + iconName + ".png";
 }
 
 function topPokemonIcon(fullname, node) {
@@ -3389,7 +3405,7 @@ $(document).ready(function () {
 		dropzone.ondragover=allowDrop;
 	}
 	initTeamPokeListObserver();
-	// Small: original-calc layout (flex row, 30px-tall) + ./icons/*-small.png. Big: 64×64 + full PNG.
+	// Small: original-calc layout (flex row, 30px-tall) + docs/icons/*-small.png. Big: 64×64 + full PNG (see getPokemonIconsBase).
 	var ICON_SIZE_BIG_PX = 64;
 	var ICON_ORIGINAL_ROW_PX = 30;
 	var iconSizeSmallBtn = document.getElementById("icon-size-small");
