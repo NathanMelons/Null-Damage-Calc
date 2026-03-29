@@ -2810,6 +2810,7 @@ function normalizeTrainerIconSpeciesName(pok_name) {
 	else if (pok_name == "Pumpkaboo-Super") pok_name = "Pumpkaboo";
 	else if (pok_name == "Mime Jr.") pok_name = "Mime%20Jr";
 	else if (pok_name == "Aegislash-Shield") pok_name = "Aegislash";
+	else if (/^genesect/i.test(String(pok_name || "").replace(/ /g, "-"))) pok_name = "Genesect";
 	return pok_name;
 }
 
@@ -2850,8 +2851,8 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	if (poke.name === "Type: Null") {
 		iconName = "type-null";
 	}
-	// All Genesect drive forms use genesect.png
-	if (poke.name.indexOf("Genesect") === 0) {
+	// All Genesect drive forms use genesect.png / genesect-Small.png (case-insensitive species string)
+	if (/^genesect/i.test(String(poke.name || "").replace(/ /g, "-"))) {
 		iconName = "genesect";
 	}
 	if (poke.name === "Arceus" && poke.item && getArceusFormeFromItem(poke.item)) {
