@@ -1344,7 +1344,7 @@ table.field {
 .mon-speed-none{
     outline: none !important;
 }
-/* Speed row: ck+ indicator as overlay (no layout shift — out of flow beside .total) */
+/* Speed row: indicator anchored to the cell’s right so it stays aligned (not after variable-width .total) */
 .sp-total-with-speed-cell {
     position: relative;
     overflow: visible;
@@ -1353,29 +1353,47 @@ table.field {
 }
 .sp-total-and-speed {
     position: relative;
-    display: inline-block;
-    vertical-align: baseline;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 2.75rem;
+    text-align: right;
+}
+.sp-total-and-speed .total {
+    font-variant-numeric: tabular-nums;
 }
 .sp-total-and-speed .speed-indicator {
     position: absolute;
-    left: 100%;
+    right: 0;
     top: 50%;
+    left: auto;
     transform: translateY(-50%);
-    margin-left: 0.5em;
-    text-align: center;
+    margin-left: 3.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: "Ubuntu Mono", ui-monospace, monospace;
     font-size: 40px;
     font-weight: 900;
     line-height: 1;
     pointer-events: none;
     z-index: 1;
-    width: max-content;
+    width: 2.5rem;
+    min-width: 2.5rem;
 }
-.sp-total-and-speed .speed-indicator div {
-    display: inline-block;
+/* Square cell so « + rotate() shares the same optical center as "-" (faster was skewing left) */
+.sp-total-and-speed .speed-indicator > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    margin: 0;
+    box-sizing: border-box;
+    transform-origin: center center;
 }
 .sp-total-and-speed .speed-faster {
-    transform: rotate(90deg);
+    transform: translateX(8px) rotate(90deg);
     color: var(--speed-faster);
 }
 .sp-total-and-speed .speed-tied {
@@ -1503,12 +1521,12 @@ html.icon-size-small .tag-partner-poke-list .tag-partner-pok {
     object-fit: contain;
     border-radius: min(6px, calc(var(--box-icon-size, 64px) * 0.12));
 }
-/* Small icons only: nudge Team / Box / opposing trainer rows slightly left */
+/* Small icons only: nudge Team / Box / opposing trainer rows slightly right */
 html.icon-size-small #team-poke-list,
 html.icon-size-small #box-poke-list,
 html.icon-size-small #box-poke-list2,
 html.icon-size-small .opposing-team-box .trainer-pok-list-opposing {
-    margin-left: -4px;
+    margin-left: 4px;
     box-sizing: border-box;
 }
 .deadzone:hover{

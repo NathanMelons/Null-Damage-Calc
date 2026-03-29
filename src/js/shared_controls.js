@@ -2815,19 +2815,27 @@ function normalizeTrainerIconSpeciesName(pok_name) {
 	return pok_name;
 }
 
-/** Canonical species assets live under repo/docs/icons/. Override with window.POKEMON_ICONS_BASE if needed. */
+/**
+ * Icon folder next to the served HTML (./icons/). Repo layout: docs/icons/; GitHub Pages serves docs/ at site root
+ * so the URL has no /docs/ segment — must use ./icons/, not ../docs/icons/.
+ * Override with window.POKEMON_ICONS_BASE if needed.
+ */
 function getPokemonIconsBase() {
 	if (typeof window !== "undefined" && window.POKEMON_ICONS_BASE) {
 		var b = String(window.POKEMON_ICONS_BASE);
 		return b.charAt(b.length - 1) === "/" ? b : b + "/";
 	}
 	var p = (typeof window !== "undefined" && window.location && window.location.pathname) ? window.location.pathname : "";
-	// Page under .../docs/ (e.g. docs/index.html): icons are ./icons/ next to the HTML file
+	// Local file or path containing .../docs/... (e.g. file:///.../docs/index.html)
 	if (/\/docs(\/|$)/.test(p)) {
 		return "./icons/";
 	}
-	// dist/, src/, etc.: sibling docs/icons
-	return "../docs/icons/";
+	// Local dev: opened from dist/ sibling to docs/ in the repo
+	if (/\/dist(\/|$)/.test(p)) {
+		return "../docs/icons/";
+	}
+	// GitHub Pages (docs as site root), root hosting, etc. — icons folder is next to index.html
+	return "./icons/";
 }
 
 /** @param {boolean} [alwaysFullSizeIcon] If true, use full-size sprites (same as big icon mode); used for top-of-panel previews. */
