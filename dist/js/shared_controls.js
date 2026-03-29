@@ -1900,10 +1900,18 @@ $(document).on("click", ".poke-panel-sprite", function () {
 	var baseOptions = options.filter(function (v) {
 		return v.indexOf("-Mega") === -1 && v.indexOf("-Gmax") === -1;
 	});
-	if (megaOptions.length === 0 || baseOptions.length === 0) return;
+	var cycleOrder;
+	if (megaOptions.length > 0) {
+		if (baseOptions.length === 0) return;
+		/* Base forme(s) first, then every mega in order — cycle for multi-mega (e.g. Charizard X/Y). */
+		cycleOrder = baseOptions.concat(megaOptions);
+	} else if (baseOptions.length >= 2) {
+		/* Alternate formes without megas (e.g. Wishiwashi-School). */
+		cycleOrder = baseOptions.slice();
+	} else {
+		return;
+	}
 	var current = formeSelect.val();
-	/* Base forme(s) first, then every mega in order — cycle for multi-mega (e.g. Charizard X/Y). */
-	var cycleOrder = baseOptions.concat(megaOptions);
 	var idx = cycleOrder.indexOf(current);
 	formeSelect.data("prevFormeBeforeChange", current);
 	if (idx === -1) {
