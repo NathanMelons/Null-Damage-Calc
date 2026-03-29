@@ -22,6 +22,11 @@ var AUTO_STAT_BOOST_RULES = [
 		trainer: "Team Aqua Leader Archie 1",
 		boosts: { df: 1, sd: 1, sp: 1 },
 	},
+	{
+		species: "Rayquaza",
+		trainer: "Sky Pillar Rayquaza",
+		boosts: { hp: 1, at: 1, df: 1, sa: 1, sd: 1, sp: 1 },
+	},
 ];
 
 function applyAutoStatBoosts(pokeObj, fullSetName) {
