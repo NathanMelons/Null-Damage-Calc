@@ -1,5 +1,5 @@
 """
-Create a 40x32 copy of each PNG in ../icons named {base}-Small.png.
+Create a 40x32 copy of each PNG in docs/icons (or ../icons if missing) named {base}-Small.png.
 Skips sources already named *-Small.png. Originals are unchanged.
 """
 import os
@@ -33,9 +33,12 @@ def paste_contain(src: Image.Image, canvas_w: int, canvas_h: int) -> Image.Image
 
 
 def main():
-    root = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "icons"))
+    base = os.path.join(os.path.dirname(__file__), "..")
+    root = os.path.normpath(os.path.join(base, "docs", "icons"))
     if not os.path.isdir(root):
-        print("icons folder not found:", root, file=sys.stderr)
+        root = os.path.normpath(os.path.join(base, "icons"))
+    if not os.path.isdir(root):
+        print("icons folder not found (expected docs/icons or icons):", root, file=sys.stderr)
         sys.exit(1)
     n = 0
     for name in sorted(os.listdir(root)):

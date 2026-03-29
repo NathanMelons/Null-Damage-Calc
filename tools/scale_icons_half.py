@@ -1,4 +1,4 @@
-"""Batch: halve each PNG's pixel dimensions in ../icons (nearest-neighbor)."""
+"""Batch: halve each PNG's pixel dimensions in docs/icons (or ../icons) (nearest-neighbor)."""
 import os
 import sys
 
@@ -11,10 +11,12 @@ except AttributeError:
 
 
 def main():
-    root = os.path.join(os.path.dirname(__file__), "..", "icons")
-    root = os.path.normpath(root)
+    base = os.path.join(os.path.dirname(__file__), "..")
+    root = os.path.normpath(os.path.join(base, "docs", "icons"))
     if not os.path.isdir(root):
-        print("icons folder not found:", root, file=sys.stderr)
+        root = os.path.normpath(os.path.join(base, "icons"))
+    if not os.path.isdir(root):
+        print("icons folder not found (expected docs/icons or icons):", root, file=sys.stderr)
         sys.exit(1)
     n = 0
     for name in os.listdir(root):

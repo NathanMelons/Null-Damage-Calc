@@ -57,6 +57,15 @@ if (process.argv[2] !== 'view') {
 
 cpdir('src', 'dist');
 cpdir('calc/dist', 'dist/calc');
+(function copyIconsToDist() {
+	var docsIcons = path.join(rootDir, 'docs', 'icons');
+	var rootIcons = path.join(rootDir, 'icons');
+	if (fs.existsSync(docsIcons)) {
+		cpdir('docs/icons', 'dist/icons');
+	} else if (fs.existsSync(rootIcons)) {
+		cpdir('icons', 'dist/icons');
+	}
+})();
 makeCachebuster('dist/honkalculate.template.html', 'dist/honkalculate.html');
 makeCachebuster('dist/index.template.html', 'dist/index.html');
 makeCachebuster('dist/randoms.template.html', 'dist/randoms.html');

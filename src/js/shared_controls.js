@@ -2827,7 +2827,7 @@ function getSrcImgPokemon(poke) {
 		iconName = iconName.replace(/Mr\. Rime/g, "Mr-Rime");
 	}
 	iconName = iconName.replace(/ /g, "-");
-	return `../icons/${iconName}.png`;
+	return `./icons/${iconName}.png`;
 }
 
 function topPokemonIcon(fullname, node) {
