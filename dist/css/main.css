@@ -199,7 +199,7 @@ fieldset.team-box-box {
     position: relative;
     overflow: visible;
 }
-/* Reference-only team when opponent is Team Aqua Grunt & Team Aqua Steve (Partner Rival sets) */
+/* Tag Partner row: Aqua Grunt & Steve → Partner Rival sets; Magma Maxie & Tabitha → Partner Steven (clickable → player) */
 .tag-partner-team-section {
     margin-top: 0.4em;
 }
@@ -207,10 +207,16 @@ fieldset.team-box-box {
     min-height: var(--box-icon-size, 64px);
 }
 .tag-partner-poke-list .tag-partner-pok {
-    cursor: default;
+    cursor: pointer;
 }
 .tag-partner-poke-list .tag-partner-pok:hover {
-    outline: none;
+    outline: 2px solid #1abc9c;
+    outline-offset: -2px;
+}
+.tag-partner-poke-list .tag-partner-pok.tag-partner-dead {
+    background: rgba(231, 76, 60, 0.5);
+    outline: 2px solid #c0392b;
+    outline-offset: -2px;
 }
 .team-box-box .team-box-title,
 .import-export-box .team-box-title,

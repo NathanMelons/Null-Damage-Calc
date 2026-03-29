@@ -1867,7 +1867,7 @@ var ADV_PATCH = {
         types: ['Fire', 'Fighting'],
         bs: { hp: 80, at: 120, df: 70, sa: 110, sd: 70, sp: 80 },
         weightkg: 52,
-        abilities: { 0: 'Blaze' }
+        abilities: { 0: 'Speed Boost' }
     },
     Breloom: {
         types: ['Grass', 'Fighting'],

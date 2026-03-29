@@ -915,19 +915,37 @@ function get_trainer_poks(trainer_name) {
 	return matches;
 }
 
-/** Opponent doubles fight: show Partner Rival Pokémon under the player team for reference. */
+/** Opponent doubles fight: show ally Pokémon under the player team for reference (setdex trainer key varies). */
 var TAG_PARTNER_OPPONENT_TRAINER = "Team Aqua Grunt & Team Aqua Steve";
+var TAG_PARTNER_OPPONENT_TRAINER_MAGMA = "Magma Leader Maxie & Tabitha";
 
 function isTagPartnerOpponentTrainer(trainerName) {
 	if (!trainerName) return false;
-	if (trainerName === TAG_PARTNER_OPPONENT_TRAINER) return true;
+	if (trainerName === TAG_PARTNER_OPPONENT_TRAINER || trainerName === TAG_PARTNER_OPPONENT_TRAINER_MAGMA) return true;
 	if (typeof trainerNamesMatch === "function") {
 		return (
 			trainerNamesMatch(TAG_PARTNER_OPPONENT_TRAINER, trainerName) ||
-			trainerNamesMatch(trainerName, TAG_PARTNER_OPPONENT_TRAINER)
+			trainerNamesMatch(trainerName, TAG_PARTNER_OPPONENT_TRAINER) ||
+			trainerNamesMatch(TAG_PARTNER_OPPONENT_TRAINER_MAGMA, trainerName) ||
+			trainerNamesMatch(trainerName, TAG_PARTNER_OPPONENT_TRAINER_MAGMA)
 		);
 	}
 	return false;
+}
+
+/** Which setdex trainer key to use for the Tag Partner row (Partner Rival vs Partner Steven). */
+function getTagPartnerSetTrainerKey(opponentTrainerName) {
+	if (!opponentTrainerName) return "Partner Rival";
+	if (opponentTrainerName === TAG_PARTNER_OPPONENT_TRAINER_MAGMA) return "Partner Steven";
+	if (typeof trainerNamesMatch === "function") {
+		if (
+			trainerNamesMatch(TAG_PARTNER_OPPONENT_TRAINER_MAGMA, opponentTrainerName) ||
+			trainerNamesMatch(opponentTrainerName, TAG_PARTNER_OPPONENT_TRAINER_MAGMA)
+		) {
+			return "Partner Steven";
+		}
+	}
+	return "Partner Rival";
 }
 
 function buildTagPartnerTeamHtml(sortedPoks) {
@@ -938,7 +956,6 @@ function buildTagPartnerTeamHtml(sortedPoks) {
 		else if (pok_name == "Tauros-Paldea-Water") pok_name = "Tauros-Paldea-Aqua";
 		else if (pok_name == "Tauros-Paldea-Fire") pok_name = "Tauros-Paldea-Blaze";
 		else if (pok_name == "Tauros-Paldea") pok_name = "Tauros-Paldea-Combat";
-		else if (pok_name == "Wooper-Paldea") pok_name = "WooperPaldea";
 		else if (pok_name == "Pumpkaboo-Super") pok_name = "Pumpkaboo";
 		else if (pok_name == "Mime Jr.") pok_name = "Mime%20Jr";
 		else if (pok_name == "Aegislash-Shield") pok_name = "Aegislash";
@@ -962,13 +979,14 @@ function updateTagPartnerBox() {
 	if (!isTagPartnerOpponentTrainer(trainerName)) {
 		section.setAttribute("hidden", "hidden");
 		list.innerHTML = "";
+		syncAlliesFaintedFromOpponentMarks();
 		return;
 	}
 
 	var prevCT = window.CURRENT_TRAINER;
 	var partnerEntries;
 	try {
-		partnerEntries = get_trainer_poks("Partner Rival");
+		partnerEntries = get_trainer_poks(getTagPartnerSetTrainerKey(trainerName));
 	} finally {
 		window.CURRENT_TRAINER = prevCT;
 	}
@@ -976,6 +994,7 @@ function updateTagPartnerBox() {
 	if (!partnerEntries || !partnerEntries.length) {
 		section.setAttribute("hidden", "hidden");
 		list.innerHTML = "";
+		syncAlliesFaintedFromOpponentMarks();
 		return;
 	}
 
@@ -983,6 +1002,13 @@ function updateTagPartnerBox() {
 	partnerEntries = filterTrainerPoksHideBaseWhenMegaPresent(partnerEntries);
 	list.innerHTML = buildTagPartnerTeamHtml(partnerEntries);
 	section.removeAttribute("hidden");
+	$("#tag-partner-poke-list .tag-partner-pok").each(function () {
+		var id = $(this).attr("data-id");
+		if (id && tagPartnerDeadSetIds.has(id)) {
+			$(this).addClass("tag-partner-dead");
+		}
+	});
+	syncAlliesFaintedFromOpponentMarks();
 }
 
 function escapeAttr(s) {
@@ -1003,7 +1029,6 @@ function renderTrainerTeamBox(trainerNameOrFullSet, boxIndex, displayTrainerName
 		else if (pok_name == "Tauros-Paldea-Water") pok_name = "Tauros-Paldea-Aqua";
 		else if (pok_name == "Tauros-Paldea-Fire") pok_name = "Tauros-Paldea-Blaze";
 		else if (pok_name == "Tauros-Paldea") pok_name = "Tauros-Paldea-Combat";
-		else if (pok_name == "Wooper-Paldea") pok_name = "WooperPaldea";
 		else if (pok_name == "Pumpkaboo-Super") pok_name = "Pumpkaboo";
 		else if (pok_name == "Mime Jr.") pok_name = "Mime%20Jr";
 		else if (pok_name == "Aegislash-Shield") pok_name = "Aegislash";
@@ -1021,10 +1046,17 @@ function renderTrainerTeamBox(trainerNameOrFullSet, boxIndex, displayTrainerName
 }
 
 var opposingMarkedSetIds = new Set();
+var tagPartnerDeadSetIds = new Set();
 var lastRenderedTrainerKey = null;
 
 function syncAlliesFaintedFromOpponentMarks() {
-	var n = $('.trainer-pok.right-side.opponent-marked').length;
+	var n;
+	var tagSection = document.getElementById("tag-partner-team-section");
+	if (tagSection && !tagSection.hasAttribute("hidden")) {
+		n = $(".tag-partner-pok.tag-partner-dead").length;
+	} else {
+		n = $(".trainer-pok.right-side.opponent-marked").length;
+	}
 	if (n > 5) n = 5;
 	var v = String(n);
 	$('.poke-info .alliesFainted').val(v);
@@ -2613,6 +2645,10 @@ function getSrcImgPokemon(poke) {
 		return;
 	}
 	var iconName = poke.name === "Aegislash-Shield" ? "Aegislash" : poke.name;
+	// Icons match species name Wooper-Paldea.png, not WooperPaldea.png
+	if (poke.name === "WooperPaldea") {
+		iconName = "Wooper-Paldea";
+	}
 	// Icon file is type-null.png (not Type:-Null.png from space/colon rules)
 	if (poke.name === "Type: Null") {
 		iconName = "type-null";
@@ -2699,6 +2735,29 @@ $(document).on('click', '.left-side', function () {
 	$('.player').change();
 	$('.player .select2-chosen').text(set);
 })
+
+/** Tag Partner row (Partner Rival / Partner Steven): load set into player side for calculations. */
+$(document).on("click", ".tag-partner-pok", function () {
+	var set = $(this).attr("data-id");
+	if (!set) return;
+	topPokemonIcon(set, $("#p1mon")[0]);
+	$(".player").val(set);
+	$(".player").change();
+	$(".player .select2-chosen").text(set);
+});
+
+$(document).on("contextmenu", ".tag-partner-pok", function (e) {
+	e.preventDefault();
+	var id = $(this).attr("data-id");
+	if (!id) return;
+	if ($(this).hasClass("tag-partner-dead")) {
+		tagPartnerDeadSetIds.delete(id);
+	} else {
+		tagPartnerDeadSetIds.add(id);
+	}
+	$(this).toggleClass("tag-partner-dead");
+	syncAlliesFaintedFromOpponentMarks();
+});
 
 // Right-click: box → team, team → box (same as calc-master)
 $(document).on('contextmenu', '.trainer-pok.left-side', function (e) {
