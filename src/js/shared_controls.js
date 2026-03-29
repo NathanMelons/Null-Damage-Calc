@@ -2838,8 +2838,7 @@ function getPokemonIconsBase() {
 	return "./icons/";
 }
 
-/** @param {boolean} [alwaysFullSizeIcon] If true, use full-size sprites (same as big icon mode); used for top-of-panel previews. */
-function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
+function getSrcImgPokemon(poke) {
 	if (!poke) {
 		return;
 	}
@@ -2869,11 +2868,10 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 		iconName = iconName.replace(/Mr\. Rime/g, "Mr-Rime");
 	}
 	iconName = iconName.replace(/ /g, "-");
-	var useSmall =
-		!alwaysFullSizeIcon &&
-		typeof localStorage !== "undefined" && localStorage.getItem("icon-size-mode") === "small";
 	var base = getPokemonIconsBase();
-	return useSmall ? base + iconName + "-small.png" : base + iconName + ".png";
+	// Always use full-size PNGs: html.icon-size-small scales them in CSS (many deploys omit *-small.png).
+	// alwaysFullSizeIcon kept for callers; same URL as team/box icons.
+	return base + iconName + ".png";
 }
 
 function topPokemonIcon(fullname, node) {
@@ -2883,7 +2881,7 @@ function topPokemonIcon(fullname, node) {
 		var it = $panel.find(".item").val();
 		if (it) mon.item = it;
 	}
-	node.src = getSrcImgPokemon(mon, true);
+	node.src = getSrcImgPokemon(mon);
 }
 
 function refreshTeamGridPokemonIconSrcs() {
@@ -3413,7 +3411,7 @@ $(document).ready(function () {
 		dropzone.ondragover=allowDrop;
 	}
 	initTeamPokeListObserver();
-	// Small: original-calc layout (flex row, 30px-tall) + docs/icons/*-small.png. Big: 64×64 + full PNG (see getPokemonIconsBase).
+	// Small: flex row + CSS height 30px; same docs/icons/*.png as big (scaled in CSS).
 	var ICON_SIZE_BIG_PX = 64;
 	var ICON_ORIGINAL_ROW_PX = 30;
 	var iconSizeSmallBtn = document.getElementById("icon-size-small");

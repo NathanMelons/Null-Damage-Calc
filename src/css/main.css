@@ -1344,31 +1344,31 @@ table.field {
 .mon-speed-none{
     outline: none !important;
 }
-/* Speed row: indicator anchored to the cell’s right so it stays aligned (not after variable-width .total) */
+/* Speed row: .total lines up with other stats (same inline 2.5em); indicator is out-of-flow, anchored to td */
 .sp-total-with-speed-cell {
     position: relative;
     overflow: visible;
     white-space: nowrap;
     vertical-align: middle;
+    padding-right: 2.75rem;
+    box-sizing: border-box;
 }
 .sp-total-and-speed {
-    position: relative;
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    padding-right: 2.75rem;
-    text-align: right;
+    display: inline-block;
+    width: auto;
+    vertical-align: baseline;
 }
 .sp-total-and-speed .total {
     font-variant-numeric: tabular-nums;
 }
-.sp-total-and-speed .speed-indicator {
+/* Nearest positioned ancestor is td — keeps glyph at cell right without shifting the number */
+.sp-total-with-speed-cell .speed-indicator {
     position: absolute;
     right: 0;
     top: 50%;
     left: auto;
-    transform: translateY(-50%);
-    margin-left: 3.2em;
+    transform: translate(12px, -50%);
+    margin-left: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1382,7 +1382,7 @@ table.field {
     min-width: 2.5rem;
 }
 /* Square cell so « + rotate() shares the same optical center as "-" (faster was skewing left) */
-.sp-total-and-speed .speed-indicator > div {
+.sp-total-with-speed-cell .speed-indicator > div {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1617,7 +1617,7 @@ html.icon-size-small .opposing-team-box .trainer-pok-list-opposing {
 .poke-top-row .info-group .gender-row {
     margin-top: 2px;
 }
-/* Top-of-panel preview: same pixel size as big icons; always full-size sprite asset (see getSrcImgPokemon(..., true)) */
+/* Top-of-panel preview: same pixel size as big icons; same PNG as team icons (getSrcImgPokemon) */
 .poke-panel-sprite,
 #p1mon, #p2mon {
     flex-shrink: 0;
