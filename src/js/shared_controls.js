@@ -2875,25 +2875,37 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	return useSmall ? base + iconName + "-small.png" : base + iconName + ".png";
 }
 
+/** Appended to team / trainer / box icon <img> tags: defer offscreen loads + decode off main thread (many parallel requests on GitHub Pages). */
+var POKEMON_LIST_ICON_HTML_ATTRS = ' loading="lazy" decoding="async"';
+
 /** For <img> attributes: `*-small.png` in small mode, with onerror fallback to full PNG if missing. */
 function pokemonIconImgSrcAttributes(poke, alwaysFullForThisImg) {
 	var primary = getSrcImgPokemon(poke, alwaysFullForThisImg);
 	var full = getSrcImgPokemon(poke, true);
 	if (!primary) return "";
 	if (primary === full) {
-		return 'src="' + escapeAttr(primary) + '"';
+		return 'src="' + escapeAttr(primary) + '"' + POKEMON_LIST_ICON_HTML_ATTRS;
 	}
 	return (
 		'src="' +
 		escapeAttr(primary) +
 		'" data-icon-fallback="' +
 		escapeAttr(full) +
-		'" onerror="var f=this.dataset.iconFallback;if(f){this.onerror=null;this.src=f;}"'
+		'" onerror="var f=this.dataset.iconFallback;if(f){this.onerror=null;this.src=f;}"' +
+		POKEMON_LIST_ICON_HTML_ATTRS
 	);
 }
 
 function setPokemonIconImgSrc(img, poke, alwaysFullSizeIcon) {
 	if (!img || !poke) return;
+	img.decoding = "async";
+	if (alwaysFullSizeIcon) {
+		img.loading = "eager";
+		img.setAttribute("fetchpriority", "high");
+	} else {
+		img.loading = "lazy";
+		img.removeAttribute("fetchpriority");
+	}
 	var primary = getSrcImgPokemon(poke, alwaysFullSizeIcon);
 	var full = getSrcImgPokemon(poke, true);
 	img.src = primary || "";
