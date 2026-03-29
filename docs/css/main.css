@@ -1394,10 +1394,11 @@ table.field {
     color: var(--speed-faster);
 }
 .sp-total-and-speed .speed-tied {
+    transform: translateX(6px);
     color: var(--speed-tied);
 }
 .sp-total-and-speed .speed-slower {
-    transform: rotate(-90deg);
+    transform: translateX(2.5px) rotate(-90deg);
     color: var(--speed-slower);
 }
 .mon-dmg-none{
