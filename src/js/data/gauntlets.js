@@ -17,7 +17,7 @@ var GAUNTLET_LIST = [
 	{ name: "6v8 Doubles", trainers: ["Leader Liza", "Leader Tate"] },
 	{ name: "B2B2B", trainers: ["Space Center Team Magma Grunt #4", "Space Center Team Magma Grunt #5", "Space Center Team Magma Grunt #6"] },
 	{ name: "B2B", trainers: ["Bird Keeper Halo & Ranger Jmash", "Cooltrainer Puffy"] },
-	{ name: "B2B2B", trainers: ["Team Rocket Grunt #1", "Team Rocket Grunt #3"] },
+	{ name: "B2B2B", trainers: ["Team Rocket Grunt #1", "Team Rocket Grunt #2", "Team Rocket Grunt #3"] },
 	{ name: "6v8 Doubles", trainers: ["Trainer Maxie", "Trainer Archie"] },
 	{ name: "B2B", trainers: ["Teacher Anabel", "Frontier Head Noland"] },
 ];
