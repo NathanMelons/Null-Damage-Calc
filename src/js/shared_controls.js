@@ -2851,9 +2851,9 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	if (poke.name === "Type: Null") {
 		iconName = "type-null";
 	}
-	// All Genesect drive forms use genesect.png / genesect-Small.png (case-insensitive species string)
+	// All Genesect drive forms share Genesect.png (PascalCase — Linux / GitHub Pages is case-sensitive)
 	if (/^genesect/i.test(String(poke.name || "").replace(/ /g, "-"))) {
-		iconName = "genesect";
+		iconName = "Genesect";
 	}
 	if (poke.name === "Arceus" && poke.item && getArceusFormeFromItem(poke.item)) {
 		iconName = getArceusFormeFromItem(poke.item);
@@ -2923,6 +2923,23 @@ function pokemonIconImgSrcAttributes(poke, alwaysFullForThisImg) {
 
 function setPokemonIconImgSrc(img, poke, alwaysFullSizeIcon) {
 	if (!img || !poke) return;
+	var primary = getSrcImgPokemon(poke, alwaysFullSizeIcon);
+	var full = getSrcImgPokemon(poke, true);
+	if (primary) {
+		try {
+			if (new URL(primary, window.location.href).href === img.src) {
+				img.decoding = "async";
+				if (alwaysFullSizeIcon) {
+					img.loading = "eager";
+					img.setAttribute("fetchpriority", "high");
+				} else {
+					img.loading = "lazy";
+					img.removeAttribute("fetchpriority");
+				}
+				return;
+			}
+		} catch (e) {}
+	}
 	img.decoding = "async";
 	if (alwaysFullSizeIcon) {
 		img.loading = "eager";
@@ -2931,8 +2948,6 @@ function setPokemonIconImgSrc(img, poke, alwaysFullSizeIcon) {
 		img.loading = "lazy";
 		img.removeAttribute("fetchpriority");
 	}
-	var primary = getSrcImgPokemon(poke, alwaysFullSizeIcon);
-	var full = getSrcImgPokemon(poke, true);
 	delete img.dataset.iconPrimary;
 	delete img.dataset.iconFallback;
 	delete img.dataset.iconTriedAlt;
@@ -2958,20 +2973,46 @@ function topPokemonIcon(fullname, node) {
 	setPokemonIconImgSrc(node, mon, true);
 }
 
+/** Batched so switching to big icons does not decode hundreds of PNGs on one frame (small sprites stay snappy). */
+var __teamIconRefreshSeq = 0;
+var TEAM_ICON_REFRESH_BATCH = 24;
+
 function refreshTeamGridPokemonIconSrcs() {
+	__teamIconRefreshSeq++;
+	var seq = __teamIconRefreshSeq;
 	var sel =
 		"#team-poke-list .trainer-pok, #trainer-poks-first .trainer-pok, #trainer-poks-remaining .trainer-pok, #tag-partner-poke-list .trainer-pok, #box-poke-list .trainer-pok, #box-poke-list2 .trainer-pok, #trash-box .trainer-pok";
-	$(sel).each(function () {
-		var dataId = $(this).attr("data-id");
-		if (!dataId) return;
-		var raw = dataId.indexOf("]") >= 0 ? dataId.slice(dataId.indexOf("]") + 1) : dataId;
-		var pok_name = raw.split(" (")[0];
-		try {
-			pok_name = decodeURIComponent(pok_name);
-		} catch (e) {}
-		var pok_norm = normalizeTrainerIconSpeciesName(pok_name);
-		setPokemonIconImgSrc(this, { name: pok_norm }, false);
+	var nodes = document.querySelectorAll(sel);
+	var list = [];
+	for (var j = 0; j < nodes.length; j++) list.push(nodes[j]);
+	var vh = typeof window.innerHeight === "number" ? window.innerHeight : 800;
+	list.sort(function (a, b) {
+		var ar = a.getBoundingClientRect();
+		var br = b.getBoundingClientRect();
+		var av = ar.bottom > 0 && ar.top < vh;
+		var bv = br.bottom > 0 && br.top < vh;
+		if (av !== bv) return av ? -1 : 1;
+		return 0;
 	});
+	var i = 0;
+	function step() {
+		if (seq !== __teamIconRefreshSeq) return;
+		var end = Math.min(i + TEAM_ICON_REFRESH_BATCH, list.length);
+		for (; i < end; i++) {
+			var el = list[i];
+			var dataId = el.getAttribute("data-id");
+			if (!dataId) continue;
+			var raw = dataId.indexOf("]") >= 0 ? dataId.slice(dataId.indexOf("]") + 1) : dataId;
+			var pok_name = raw.split(" (")[0];
+			try {
+				pok_name = decodeURIComponent(pok_name);
+			} catch (e) {}
+			var pok_norm = normalizeTrainerIconSpeciesName(pok_name);
+			setPokemonIconImgSrc(el, { name: pok_norm }, false);
+		}
+		if (i < list.length) requestAnimationFrame(step);
+	}
+	if (list.length) requestAnimationFrame(step);
 }
 
 function refreshPanelPokemonSpritesForIconMode() {
@@ -3513,11 +3554,11 @@ $(document).ready(function () {
 			iconSizeBigBtn.setAttribute("aria-pressed", isBig ? "true" : "false");
 		}
 		localStorage.setItem("icon-size-mode", mode);
-		if (typeof refreshTeamGridPokemonIconSrcs === "function") {
-			refreshTeamGridPokemonIconSrcs();
-		}
 		if (typeof refreshPanelPokemonSpritesForIconMode === "function") {
 			refreshPanelPokemonSpritesForIconMode();
+		}
+		if (typeof refreshTeamGridPokemonIconSrcs === "function") {
+			refreshTeamGridPokemonIconSrcs();
 		}
 	}
 	if (iconSizeSmallBtn && iconSizeBigBtn) {
