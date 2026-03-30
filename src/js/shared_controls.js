@@ -102,8 +102,8 @@ $("input:radio[name='format']").change(function () {
 	$(".format-specific").not("." + gameType.toLowerCase()).hide();
 });
 
-// auto-calc stats and current HP on change
-$(".level").keyup(function () {
+// auto-calc stats and current HP on change (keyboard + number input spinners)
+$(".level").bind("keyup change input", function () {
 	var poke = $(this).closest(".poke-info");
 	calcHP(poke);
 	calcStats(poke);
