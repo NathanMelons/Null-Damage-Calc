@@ -1389,64 +1389,70 @@ function resolveSetdexKey(pokemonName) {
 
 // auto-update set details on select
 $(".set-selector").change(function () {
+	// Selecting a Pokémon triggers a lot of synchronous DOM + Select2 work; defer one frame so the UI stays responsive.
 	window.NO_CALC = true;
+	window.__setSelectorUpdateSeq = (window.__setSelectorUpdateSeq || 0) + 1;
+	var seq = window.__setSelectorUpdateSeq;
 	var $sel = $(this);
-	var fullSetName = $sel.val();
-	var pokemon;
-	try {
-	if ($sel.hasClass('opposing')) {
-		if (!window._wsMirrorP2Load) {
-			window._wsMirrorHeaderActive = false;
-			window._wsMirrorDisplayLabel = "";
-		}
-		if (!fullSetName && typeof getOpposingSetStringForTrainerNav === "function") {
-			fullSetName = getOpposingSetStringForTrainerNav();
-		}
-		if (fullSetName && String($sel.val() || "").trim() === "") {
-			$sel.val(fullSetName);
-		}
-		topPokemonIcon(fullSetName, $("#p2mon")[0])
-		// Wandering Spirit mirror click loads a team member's set into #p2 but keeps None (Wandering Spirit) in the selector.
-		if (!window._wsMirrorP2Load) {
-			CURRENT_TRAINER_POKS = get_trainer_poks(fullSetName);
-			renderAllTrainerTeams(fullSetName);
-			if (typeof applyBattleSettings === "function") {
-				applyBattleSettings(getTrainerNameFromSet(fullSetName));
+	var initialVal = $sel.val();
+	requestAnimationFrame(function () {
+		if (seq !== window.__setSelectorUpdateSeq) return;
+		var fullSetName = initialVal;
+		var pokemon;
+		try {
+		if ($sel.hasClass('opposing')) {
+			if (!window._wsMirrorP2Load) {
+				window._wsMirrorHeaderActive = false;
+				window._wsMirrorDisplayLabel = "";
 			}
-			persistLastOpposingTrainerIndexFromFullSetName(fullSetName);
+			if (!fullSetName && typeof getOpposingSetStringForTrainerNav === "function") {
+				fullSetName = getOpposingSetStringForTrainerNav();
+			}
+			if (fullSetName && String($sel.val() || "").trim() === "") {
+				$sel.val(fullSetName);
+			}
+			topPokemonIcon(fullSetName, $("#p2mon")[0])
+			// Wandering Spirit mirror click loads a team member's set into #p2 but keeps None (Wandering Spirit) in the selector.
+			if (!window._wsMirrorP2Load) {
+				CURRENT_TRAINER_POKS = get_trainer_poks(fullSetName);
+				renderAllTrainerTeams(fullSetName);
+				if (typeof applyBattleSettings === "function") {
+					applyBattleSettings(getTrainerNameFromSet(fullSetName));
+				}
+				persistLastOpposingTrainerIndexFromFullSetName(fullSetName);
+			}
+		} else {
+			topPokemonIcon(fullSetName, $("#p1mon")[0])
 		}
-	} else {
-		topPokemonIcon(fullSetName, $("#p1mon")[0])
-	}
 
-	if (fullSetName && fullSetName.indexOf(" (") !== -1) {
-		var pokemonName = fullSetName.substring(0, fullSetName.indexOf(" ("));
-		var setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
-		var setdexKey = resolveSetdexKey(pokemonName);
-		pokemon = pokedex[pokemonName];
-	if (pokemon) {
-		var pokeObj = $sel.closest(".poke-info");
-		if (stickyMoves.getSelectedSide() === pokeObj.prop("id")) {
-			stickyMoves.clearStickyMove();
-		}
-		pokeObj.find(".teraToggle").prop("checked", false);
-		pokeObj.find(".boostedStat").val("");
-		pokeObj.find(".type1").val(pokemon.types[0]);
-		pokeObj.find(".type2").val(pokemon.types[1]);
-		pokeObj.find(".hp .base").val(pokemon.bs.hp);
-		var i;
-		for (i = 0; i < LEGACY_STATS[gen].length; i++) {
-			pokeObj.find("." + LEGACY_STATS[gen][i] + " .base").val(pokemon.bs[LEGACY_STATS[gen][i]]);
-		}
-		pokeObj.find(".boost").val(0);
-		pokeObj.find(".percent-hp").val(100);
-		pokeObj.find(".status").val("Healthy");
-		pokeObj.find(".status").change();
-		var moveObj;
-		var abilityObj = pokeObj.find(".ability");
-		var itemObj = pokeObj.find(".item");
-		var randset = $("#randoms").prop("checked") ? randdex[pokemonName] : undefined;
-		var regSets = setdexKey in setdex && setName in setdex[setdexKey];
+		if (fullSetName && fullSetName.indexOf(" (") !== -1) {
+			var pokemonName = fullSetName.substring(0, fullSetName.indexOf(" ("));
+			var setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
+			var setdexKey = resolveSetdexKey(pokemonName);
+			pokemon = pokedex[pokemonName];
+		if (pokemon) {
+			var pokeObj = $sel.closest(".poke-info");
+			if (stickyMoves.getSelectedSide() === pokeObj.prop("id")) {
+				stickyMoves.clearStickyMove();
+			}
+			pokeObj.find(".teraToggle").prop("checked", false);
+			pokeObj.find(".boostedStat").val("");
+			pokeObj.find(".type1").val(pokemon.types[0]);
+			pokeObj.find(".type2").val(pokemon.types[1]);
+			pokeObj.find(".hp .base").val(pokemon.bs.hp);
+			var i;
+			for (i = 0; i < LEGACY_STATS[gen].length; i++) {
+				pokeObj.find("." + LEGACY_STATS[gen][i] + " .base").val(pokemon.bs[LEGACY_STATS[gen][i]]);
+			}
+			pokeObj.find(".boost").val(0);
+			pokeObj.find(".percent-hp").val(100);
+			pokeObj.find(".status").val("Healthy");
+			pokeObj.find(".status").change();
+			var moveObj;
+			var abilityObj = pokeObj.find(".ability");
+			var itemObj = pokeObj.find(".item");
+			var randset = $("#randoms").prop("checked") ? randdex[pokemonName] : undefined;
+			var regSets = setdexKey in setdex && setName in setdex[setdexKey];
 
 		if (randset) {
 			var listItems = randdex[pokemonName].items ? randdex[pokemonName].items : [];
@@ -1591,22 +1597,23 @@ $(".set-selector").change(function () {
 		} else {
 			pokeObj.find(".gender").parent().removeClass("gender-empty").show();
 		}
-	}
-	}
-	} finally {
-		window.NO_CALC = false;
-	}
-	if (pokemon && typeof applyAutoStatBoosts === "function") {
-		applyAutoStatBoosts($sel.closest(".poke-info"), fullSetName);
-	}
-	updateCommanderDondozoButton($sel.closest(".poke-info"));
-	if ($sel.hasClass("opposing")) {
-		var p1Set = getFullSetNameFromPokeInfo($("#p1"));
-		if (p1Set) {
-			var p1sprite = document.getElementById("p1mon");
-			if (p1sprite) topPokemonIcon(p1Set, p1sprite);
 		}
-	}
+		}
+		} finally {
+			window.NO_CALC = false;
+		}
+		if (pokemon && typeof applyAutoStatBoosts === "function") {
+			applyAutoStatBoosts($sel.closest(".poke-info"), fullSetName);
+		}
+		updateCommanderDondozoButton($sel.closest(".poke-info"));
+		if ($sel.hasClass("opposing")) {
+			var p1Set = getFullSetNameFromPokeInfo($("#p1"));
+			if (p1Set) {
+				var p1sprite = document.getElementById("p1mon");
+				if (p1sprite) topPokemonIcon(p1Set, p1sprite);
+			}
+		}
+	});
 });
 
 function formatMovePool(moves) {
