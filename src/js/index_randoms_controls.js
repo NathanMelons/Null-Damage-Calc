@@ -132,9 +132,12 @@ function calculationsColors(p1info, p2) {
 	var p1field = createField();
 	var p2field = p1field.clone().swap();
 
-	damageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
-	p1 = damageResults[0][0].attacker;
-	p2 = damageResults[1][0].attacker;
+	// Local only: color-code runs once per box/team icon and must NOT overwrite global
+	// damageResults (used by performCalculations + the detailed result line), or the
+	// last icon processed (often the last slot in Box 2) replaces the main matchup.
+	var ccResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
+	p1 = ccResults[0][0].attacker;
+	p2 = ccResults[1][0].attacker;
 	p1.maxDamages = [];
 	p2.maxDamages = [];
 	var p1s = p1.stats.spe;
@@ -148,7 +151,7 @@ function calculationsColors(p1info, p2) {
 	var p1HD = 0, p2HD = 0;
 	for (var i = 0; i < 4; i++) {
 		// P1
-		result = damageResults[0][i];
+		result = ccResults[0][i];
 		//lowest rolls in %
 		damage = result.damage[0] ? result.damage[0] : result.damage;
 		lowestRoll = damage * p1.moves[i].hits / p2.stats.hp * 100;
@@ -169,7 +172,7 @@ function calculationsColors(p1info, p2) {
 		}
 
 		// P2
-		result = damageResults[1][i];
+		result = ccResults[1][i];
 		//some damage like sonic boom acts a bit weird.
 		damage = result.damage[0] ? result.damage[0] : result.damage;
 		lowestRoll = damage * p2.moves[i].hits / p1.stats.hp * 100;
