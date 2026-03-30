@@ -1389,70 +1389,64 @@ function resolveSetdexKey(pokemonName) {
 
 // auto-update set details on select
 $(".set-selector").change(function () {
-	// Selecting a Pokémon triggers a lot of synchronous DOM + Select2 work; defer one frame so the UI stays responsive.
 	window.NO_CALC = true;
-	window.__setSelectorUpdateSeq = (window.__setSelectorUpdateSeq || 0) + 1;
-	var seq = window.__setSelectorUpdateSeq;
 	var $sel = $(this);
-	var initialVal = $sel.val();
-	requestAnimationFrame(function () {
-		if (seq !== window.__setSelectorUpdateSeq) return;
-		var fullSetName = initialVal;
-		var pokemon;
-		try {
-		if ($sel.hasClass('opposing')) {
-			if (!window._wsMirrorP2Load) {
-				window._wsMirrorHeaderActive = false;
-				window._wsMirrorDisplayLabel = "";
-			}
-			if (!fullSetName && typeof getOpposingSetStringForTrainerNav === "function") {
-				fullSetName = getOpposingSetStringForTrainerNav();
-			}
-			if (fullSetName && String($sel.val() || "").trim() === "") {
-				$sel.val(fullSetName);
-			}
-			topPokemonIcon(fullSetName, $("#p2mon")[0])
-			// Wandering Spirit mirror click loads a team member's set into #p2 but keeps None (Wandering Spirit) in the selector.
-			if (!window._wsMirrorP2Load) {
-				CURRENT_TRAINER_POKS = get_trainer_poks(fullSetName);
-				renderAllTrainerTeams(fullSetName);
-				if (typeof applyBattleSettings === "function") {
-					applyBattleSettings(getTrainerNameFromSet(fullSetName));
-				}
-				persistLastOpposingTrainerIndexFromFullSetName(fullSetName);
-			}
-		} else {
-			topPokemonIcon(fullSetName, $("#p1mon")[0])
+	var fullSetName = $sel.val();
+	var pokemon;
+	try {
+	if ($sel.hasClass('opposing')) {
+		if (!window._wsMirrorP2Load) {
+			window._wsMirrorHeaderActive = false;
+			window._wsMirrorDisplayLabel = "";
 		}
+		if (!fullSetName && typeof getOpposingSetStringForTrainerNav === "function") {
+			fullSetName = getOpposingSetStringForTrainerNav();
+		}
+		if (fullSetName && String($sel.val() || "").trim() === "") {
+			$sel.val(fullSetName);
+		}
+		topPokemonIcon(fullSetName, $("#p2mon")[0])
+		// Wandering Spirit mirror click loads a team member's set into #p2 but keeps None (Wandering Spirit) in the selector.
+		if (!window._wsMirrorP2Load) {
+			CURRENT_TRAINER_POKS = get_trainer_poks(fullSetName);
+			renderAllTrainerTeams(fullSetName);
+			if (typeof applyBattleSettings === "function") {
+				applyBattleSettings(getTrainerNameFromSet(fullSetName));
+			}
+			persistLastOpposingTrainerIndexFromFullSetName(fullSetName);
+		}
+	} else {
+		topPokemonIcon(fullSetName, $("#p1mon")[0])
+	}
 
-		if (fullSetName && fullSetName.indexOf(" (") !== -1) {
-			var pokemonName = fullSetName.substring(0, fullSetName.indexOf(" ("));
-			var setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
-			var setdexKey = resolveSetdexKey(pokemonName);
-			pokemon = pokedex[pokemonName];
-		if (pokemon) {
-			var pokeObj = $sel.closest(".poke-info");
-			if (stickyMoves.getSelectedSide() === pokeObj.prop("id")) {
-				stickyMoves.clearStickyMove();
-			}
-			pokeObj.find(".teraToggle").prop("checked", false);
-			pokeObj.find(".boostedStat").val("");
-			pokeObj.find(".type1").val(pokemon.types[0]);
-			pokeObj.find(".type2").val(pokemon.types[1]);
-			pokeObj.find(".hp .base").val(pokemon.bs.hp);
-			var i;
-			for (i = 0; i < LEGACY_STATS[gen].length; i++) {
-				pokeObj.find("." + LEGACY_STATS[gen][i] + " .base").val(pokemon.bs[LEGACY_STATS[gen][i]]);
-			}
-			pokeObj.find(".boost").val(0);
-			pokeObj.find(".percent-hp").val(100);
-			pokeObj.find(".status").val("Healthy");
-			pokeObj.find(".status").change();
-			var moveObj;
-			var abilityObj = pokeObj.find(".ability");
-			var itemObj = pokeObj.find(".item");
-			var randset = $("#randoms").prop("checked") ? randdex[pokemonName] : undefined;
-			var regSets = setdexKey in setdex && setName in setdex[setdexKey];
+	if (fullSetName && fullSetName.indexOf(" (") !== -1) {
+		var pokemonName = fullSetName.substring(0, fullSetName.indexOf(" ("));
+		var setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
+		var setdexKey = resolveSetdexKey(pokemonName);
+		pokemon = pokedex[pokemonName];
+	if (pokemon) {
+		var pokeObj = $sel.closest(".poke-info");
+		if (stickyMoves.getSelectedSide() === pokeObj.prop("id")) {
+			stickyMoves.clearStickyMove();
+		}
+		pokeObj.find(".teraToggle").prop("checked", false);
+		pokeObj.find(".boostedStat").val("");
+		pokeObj.find(".type1").val(pokemon.types[0]);
+		pokeObj.find(".type2").val(pokemon.types[1]);
+		pokeObj.find(".hp .base").val(pokemon.bs.hp);
+		var i;
+		for (i = 0; i < LEGACY_STATS[gen].length; i++) {
+			pokeObj.find("." + LEGACY_STATS[gen][i] + " .base").val(pokemon.bs[LEGACY_STATS[gen][i]]);
+		}
+		pokeObj.find(".boost").val(0);
+		pokeObj.find(".percent-hp").val(100);
+		pokeObj.find(".status").val("Healthy");
+		pokeObj.find(".status").change();
+		var moveObj;
+		var abilityObj = pokeObj.find(".ability");
+		var itemObj = pokeObj.find(".item");
+		var randset = $("#randoms").prop("checked") ? randdex[pokemonName] : undefined;
+		var regSets = setdexKey in setdex && setName in setdex[setdexKey];
 
 		if (randset) {
 			var listItems = randdex[pokemonName].items ? randdex[pokemonName].items : [];
@@ -1597,23 +1591,22 @@ $(".set-selector").change(function () {
 		} else {
 			pokeObj.find(".gender").parent().removeClass("gender-empty").show();
 		}
+	}
+	}
+	} finally {
+		window.NO_CALC = false;
+	}
+	if (pokemon && typeof applyAutoStatBoosts === "function") {
+		applyAutoStatBoosts($sel.closest(".poke-info"), fullSetName);
+	}
+	updateCommanderDondozoButton($sel.closest(".poke-info"));
+	if ($sel.hasClass("opposing")) {
+		var p1Set = getFullSetNameFromPokeInfo($("#p1"));
+		if (p1Set) {
+			var p1sprite = document.getElementById("p1mon");
+			if (p1sprite) topPokemonIcon(p1Set, p1sprite);
 		}
-		}
-		} finally {
-			window.NO_CALC = false;
-		}
-		if (pokemon && typeof applyAutoStatBoosts === "function") {
-			applyAutoStatBoosts($sel.closest(".poke-info"), fullSetName);
-		}
-		updateCommanderDondozoButton($sel.closest(".poke-info"));
-		if ($sel.hasClass("opposing")) {
-			var p1Set = getFullSetNameFromPokeInfo($("#p1"));
-			if (p1Set) {
-				var p1sprite = document.getElementById("p1mon");
-				if (p1sprite) topPokemonIcon(p1Set, p1sprite);
-			}
-		}
-	});
+	}
 });
 
 function formatMovePool(moves) {
@@ -3261,7 +3254,40 @@ function HideShowCCSettings(){
 	$('#cc-sets')[0].toggleAttribute("hidden");
 }
 
-function colorCodeUpdate(){
+// Defer + batch color-code recalcs to avoid UI hitching on selection changes.
+var __ccRefreshSeq = 0;
+var __ccRefreshIdleHandle = null;
+var CC_REFRESH_BATCH = 20;
+
+function scheduleColorCodeUpdate() {
+	__ccRefreshSeq++;
+	var seq = __ccRefreshSeq;
+
+	if (__ccRefreshIdleHandle !== null) {
+		try {
+			if (typeof cancelIdleCallback !== "undefined") cancelIdleCallback(__ccRefreshIdleHandle);
+			else clearTimeout(__ccRefreshIdleHandle);
+		} catch (e) {}
+		__ccRefreshIdleHandle = null;
+	}
+
+	function run() {
+		if (seq !== __ccRefreshSeq) return;
+		colorCodeUpdate(seq);
+	}
+
+	// Start quickly (next frame) so updates feel immediate.
+	// colorCodeUpdate itself batches work over frames, so this stays responsive.
+	if (typeof requestAnimationFrame !== "undefined") {
+		__ccRefreshIdleHandle = requestAnimationFrame(run);
+		return;
+	}
+
+	// Fallback: microtask-ish
+	__ccRefreshIdleHandle = setTimeout(run, 0);
+}
+
+function colorCodeUpdate(seq){
 	var speCheck = document.getElementById("cc-spe-border").checked;
 	var ohkoCheck = document.getElementById("cc-ohko-color").checked;
 	if (!speCheck && !ohkoCheck){
@@ -3271,29 +3297,48 @@ function colorCodeUpdate(){
 	// i calc here to alleviate some calculation
 	var p2info = $("#p2");
 	var p2 = createPokemon(p2info);
-	for (let i = 0; i < pMons.length; i++) {
-		let set = pMons[i].getAttribute("data-id");
-		let idColor = calculationsColors(set, p2);
-		if (speCheck && ohkoCheck){
-			pMons[i].className = `trainer-pok left-side mon-speed-${idColor.speed} mon-dmg-${idColor.code}`;
+	// Batch DOM/class updates over multiple frames so selection stays responsive.
+	var i = 0;
+	var vh = typeof window.innerHeight === "number" ? window.innerHeight : 800;
+	var list = [];
+	for (var j = 0; j < pMons.length; j++) list.push(pMons[j]);
+	list.sort(function (a, b) {
+		var ar = a.getBoundingClientRect();
+		var br = b.getBoundingClientRect();
+		var av = ar.bottom > 0 && ar.top < vh;
+		var bv = br.bottom > 0 && br.top < vh;
+		if (av !== bv) return av ? -1 : 1;
+		return 0;
+	});
+
+	function step() {
+		if (seq && seq !== __ccRefreshSeq) return;
+		var end = Math.min(i + CC_REFRESH_BATCH, list.length);
+		for (; i < end; i++) {
+			var el = list[i];
+			var set = el.getAttribute("data-id");
+			var idColor = calculationsColors(set, p2);
+			if (speCheck && ohkoCheck){
+				el.className = `trainer-pok left-side mon-speed-${idColor.speed} mon-dmg-${idColor.code}`;
+			}
+			else if (speCheck){
+				el.className = `trainer-pok left-side mon-speed-${idColor.speed}`;
+			}
+			else if (ohkoCheck){
+				el.className = `trainer-pok left-side mon-dmg-${idColor.code}`;
+			}
 		}
-		else if (speCheck){
-			pMons[i].className = `trainer-pok left-side mon-speed-${idColor.speed}`;
-		}
-		else if (ohkoCheck){
-			pMons[i].className = `trainer-pok left-side mon-dmg-${idColor.code}`;
-		}
-		
-		
+		if (i < list.length) requestAnimationFrame(step);
 	}
+	if (list.length) requestAnimationFrame(step);
 }
 function showColorCodes(){
-	colorCodeUpdate();
+	scheduleColorCodeUpdate();
 	HideShowCCSettings();
 }
 
 function refreshColorCode(){
-	colorCodeUpdate();
+	scheduleColorCodeUpdate();
 }
 
 function hideColorCodes(){
