@@ -356,6 +356,17 @@ function checkSeedBoost(pokemon, field) {
     }
 }
 exports.checkSeedBoost = checkSeedBoost;
+function checkBerserkGene(pokemon, gen) {
+    if (gen.num < 9 || !pokemon.hasItem('Berserk Gene'))
+        return;
+    if (pokemon.hasAbility('Contrary')) {
+        pokemon.boosts.atk = Math.max(-6, pokemon.boosts.atk - 2);
+    }
+    else {
+        pokemon.boosts.atk = Math.min(6, pokemon.boosts.atk + 2);
+    }
+}
+exports.checkBerserkGene = checkBerserkGene;
 function checkMultihitBoost(gen, attacker, defender, move, field, desc, usedWhiteHerb) {
     if (usedWhiteHerb === void 0) { usedWhiteHerb = false; }
     if (move.named('Gyro Ball', 'Electro Ball') && defender.hasAbility('Gooey', 'Tangling Hair')) {

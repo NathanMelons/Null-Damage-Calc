@@ -24,6 +24,7 @@ import {
   checkInfiltrator,
   checkIntimidate,
   checkIlluminate,
+  checkBerserkGene,
   checkIntrepidSword,
   checkItem,
   checkMultihitBoost,
@@ -83,6 +84,8 @@ export function calculateSMSSSV(
   checkDownload(defender, attacker, field.isWonderRoom);
   checkIntrepidSword(attacker, gen);
   checkIntrepidSword(defender, gen);
+  checkBerserkGene(attacker, gen);
+  checkBerserkGene(defender, gen);
 
   computeFinalStats(gen, attacker, defender, field, 'atk', 'spa');
 

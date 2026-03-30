@@ -324,6 +324,16 @@ export function checkSeedBoost(pokemon: Pokemon, field: Field) {
   }
 }
 
+/** +2 Attack while held (Gen 9+). Item cleared by checkItem under Magic Room / Klutz. */
+export function checkBerserkGene(pokemon: Pokemon, gen: Generation) {
+  if (gen.num < 9 || !pokemon.hasItem('Berserk Gene')) return;
+  if (pokemon.hasAbility('Contrary')) {
+    pokemon.boosts.atk = Math.max(-6, pokemon.boosts.atk - 2);
+  } else {
+    pokemon.boosts.atk = Math.min(6, pokemon.boosts.atk + 2);
+  }
+}
+
 // NOTE: We only need to handle guaranteed, damage-relevant boosts here for multi-hit accuracy
 export function checkMultihitBoost(
   gen: Generation,
