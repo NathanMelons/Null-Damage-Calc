@@ -2811,6 +2811,8 @@ function normalizeTrainerIconSpeciesName(pok_name) {
 	else if (pok_name == "Mime Jr.") pok_name = "Mime%20Jr";
 	else if (pok_name == "Aegislash-Shield") pok_name = "Aegislash";
 	else if (/^genesect/i.test(String(pok_name || "").replace(/ /g, "-"))) pok_name = "Genesect";
+	// Gourgeist: all size formes use Gourgeist.png
+	else if (/^gourgeist-/i.test(String(pok_name || "").replace(/ /g, "-"))) pok_name = "Gourgeist";
 	return pok_name;
 }
 
@@ -2854,6 +2856,10 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	// All Genesect drive forms share Genesect.png (PascalCase — Linux / GitHub Pages is case-sensitive)
 	if (/^genesect/i.test(String(poke.name || "").replace(/ /g, "-"))) {
 		iconName = "Genesect";
+	}
+	// Gourgeist: all size formes use Gourgeist.png (case-insensitive species string)
+	if (/^gourgeist-/i.test(String(poke.name || "").replace(/ /g, "-"))) {
+		iconName = "Gourgeist";
 	}
 	if (poke.name === "Arceus" && poke.item && getArceusFormeFromItem(poke.item)) {
 		iconName = getArceusFormeFromItem(poke.item);
