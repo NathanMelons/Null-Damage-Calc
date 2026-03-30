@@ -1527,6 +1527,12 @@ html.icon-size-small .opposing-team-box .trainer-pok-list-opposing {
     margin-left: 4px;
     box-sizing: border-box;
 }
+/* Big icons only: nudge player box lists slightly right */
+html:not(.icon-size-small) #box-poke-list,
+html:not(.icon-size-small) #box-poke-list2 {
+    margin-left: 2px;
+    box-sizing: border-box;
+}
 .deadzone:hover{
     background: #722323;
 }
