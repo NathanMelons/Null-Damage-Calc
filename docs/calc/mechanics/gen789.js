@@ -748,6 +748,10 @@ function calculateBPModsSMSSSV(gen, attacker, defender, move, field, desc, baseP
         bpMods.push(6144);
         desc.isHelpingHand = true;
     }
+    if (attacker.hasAbility('Electromorphosis') && attacker.abilityOn && move.hasType('Electric')) {
+        bpMods.push(8192);
+        desc.attackerAbility = attacker.ability;
+    }
     var terrainMultiplier = 6144;
     if ((0, util_2.isGrounded)(attacker, field)) {
         if ((field.hasTerrain('Electric') && move.hasType('Electric')) ||

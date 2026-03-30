@@ -1394,7 +1394,7 @@ table.field {
     color: var(--speed-faster);
 }
 .sp-total-and-speed .speed-tied {
-    transform: translateX(8px);
+    transform: translateX(8px) translateY(-2px);
     color: var(--speed-tied);
 }
 .sp-total-and-speed .speed-slower {
@@ -1864,6 +1864,6 @@ select.status {
     position: absolute;
     top: auto;
     bottom: 3px;
-    right: 10em;
+    right: 11.3em;
     margin: 0;
 }

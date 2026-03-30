@@ -1009,6 +1009,11 @@ export function calculateBPModsSMSSSV(
     desc.isHelpingHand = true;
   }
 
+  if (attacker.hasAbility('Electromorphosis') && attacker.abilityOn && move.hasType('Electric')) {
+    bpMods.push(8192);
+    desc.attackerAbility = attacker.ability;
+  }
+
   // Field effects
 
   const terrainMultiplier = 6144;
