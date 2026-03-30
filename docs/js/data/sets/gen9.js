@@ -28308,7 +28308,7 @@ var SETDEX_SV = {
   "Greninja-Mega": {
     "Parasol Lady Angelica": {
       "level": 77,
-      "ability": "Protean",
+      "ability": "Sniper",
       "moves": [
         "Snipe Shot",
         "Night Slash",
@@ -28321,7 +28321,7 @@ var SETDEX_SV = {
     },
     "Elite Four Sidney Singles": {
       "level": 100,
-      "ability": "Protean",
+      "ability": "Sniper",
       "moves": [
         "Muddy Water",
         "Night Daze",
@@ -28351,7 +28351,7 @@ var SETDEX_SV = {
   "Delphox-Mega": {
     "Cooltrainer Melodic": {
       "level": 79,
-      "ability": "Levitate",
+      "ability": "Dazzling",
       "moves": [
         "Fire Blast",
         "Psystrike",
@@ -28364,7 +28364,7 @@ var SETDEX_SV = {
     },
     "Gentleman Clifford & Psychic Macey": {
       "level": 86,
-      "ability": "Levitate",
+      "ability": "Dazzling",
       "moves": [
         "Psych Up",
         "Psystrike",
@@ -28510,7 +28510,7 @@ var SETDEX_SV = {
   "Chesnaught-Mega": {
     "Cooltrainer Marcel": {
       "level": 80,
-      "ability": "Bulletproof",
+      "ability": "Quick Draw",
       "moves": [
         "Needle Arm",
         "Body Press",
