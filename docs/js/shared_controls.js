@@ -2849,9 +2849,9 @@ function getSrcImgPokemon(poke, alwaysFullSizeIcon) {
 	if (poke.name === "WooperPaldea") {
 		iconName = "Wooper-Paldea";
 	}
-	// Icon file is type-null.png (not Type:-Null.png from space/colon rules)
+	// Icon file is Type-Null.png (not Type:-Null.png from space/colon rules)
 	if (poke.name === "Type: Null") {
-		iconName = "type-null";
+		iconName = "Type-Null";
 	}
 	// All Genesect drive forms share Genesect.png (PascalCase — Linux / GitHub Pages is case-sensitive)
 	if (/^genesect/i.test(String(poke.name || "").replace(/ /g, "-"))) {
