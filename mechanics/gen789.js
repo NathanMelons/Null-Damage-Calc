@@ -284,6 +284,11 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
             }
         }
     }
+    // Water Shuriken normally hits 2-5 times; for regular Greninja we approximate it as always 5.
+    // (No override for Greninja-Ash or Greninja-Mega.)
+    if (move.named('Water Shuriken') && attacker.named('Greninja')) {
+        move.hits = 5;
+    }
     if (move.hits > 1) {
         desc.hits = move.hits;
     }
