@@ -2755,6 +2755,51 @@ function removeTrainerIconsWithDataIdFromBoxLists(dataIdStr) {
 	}
 }
 
+var STORAGE_BOX2_SET_IDS = "nullcalc_box2SetIds";
+var __box2SyncHandle = null;
+
+function readBox2SetIds() {
+	try {
+		var raw = localStorage.getItem(STORAGE_BOX2_SET_IDS);
+		if (!raw) return {};
+		var arr = JSON.parse(raw);
+		if (!Array.isArray(arr)) return {};
+		var map = {};
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i]) map[String(arr[i])] = true;
+		}
+		return map;
+	} catch (e) {
+		return {};
+	}
+}
+
+function writeBox2SetIdsFromDom() {
+	try {
+		var box2 = document.getElementById("box-poke-list2");
+		if (!box2) return;
+		var nodes = box2.getElementsByClassName("trainer-pok");
+		var ids = [];
+		for (var i = 0; i < nodes.length; i++) {
+			if (nodes[i] && nodes[i].id) ids.push(String(nodes[i].id));
+		}
+		localStorage.setItem(STORAGE_BOX2_SET_IDS, JSON.stringify(ids));
+	} catch (e) {}
+}
+
+function queueBox2SetIdsSync() {
+	if (__box2SyncHandle !== null) return;
+	var run = function () {
+		__box2SyncHandle = null;
+		writeBox2SetIdsFromDom();
+	};
+	if (typeof requestAnimationFrame !== "undefined") {
+		__box2SyncHandle = requestAnimationFrame(run);
+	} else {
+		__box2SyncHandle = setTimeout(run, 0);
+	}
+}
+
 /** @param {string} [boxListId] - e.g. "box-poke-list2" for box 2; defaults to "box-poke-list". */
 function addBoxed(poke, boxListId) {
 	var listId = boxListId || "box-poke-list";
@@ -2777,6 +2822,7 @@ function addBoxed(poke, boxListId) {
 			return;
 		}
 		listEl.appendChild(existing);
+		queueBox2SetIdsSync();
 		return;
 	}
 	var newPoke = document.createElement("img");
@@ -2786,6 +2832,7 @@ function addBoxed(poke, boxListId) {
 	newPoke.dataset.id = `${poke.name} (${poke.nameProp})`
 	newPoke.addEventListener("dragstart", dragstart_handler);
 	listEl.appendChild(newPoke)
+	queueBox2SetIdsSync();
 }
 
 // Arceus: show as Arceus-Fire, Arceus-Fairy, etc. based on plate item
@@ -3236,6 +3283,7 @@ function resetTrainer() {
 	if (confirm(`Are you sure you want to reset? This will clear all imported sets and change your current trainer back to Younger Calvin. This cannot be undone.`)){
 		selectTrainer(1);
 		localStorage.removeItem("customsets");
+		localStorage.removeItem(STORAGE_BOX2_SET_IDS);
 		$(allPokemon("#importedSetsOptions")).hide();
 		loadDefaultLists();
 		for (let zone of document.getElementsByClassName("dropzone")){
@@ -3412,6 +3460,7 @@ function drop(ev) {
 		}
 	}
 	ev.target.classList.remove('over');
+	queueBox2SetIdsSync();
 	if (typeof MutationObserver === "undefined") {
 		refreshOpposingTeamIfWanderingSpirit();
 	}

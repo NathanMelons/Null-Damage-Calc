@@ -583,6 +583,7 @@ function addToDex(poke) {
 }
 
 function updateDex(customsets) {
+	var box2Ids = (typeof readBox2SetIds === "function") ? readBox2SetIds() : {};
 	for (var pokemon in customsets) {
 		for (var moveset in customsets[pokemon]) {
 			if (!SETDEX_SV[pokemon]) SETDEX_SV[pokemon] = {};
@@ -604,14 +605,18 @@ function updateDex(customsets) {
 			if (!SETDEX_RBY[pokemon]) SETDEX_RBY[pokemon] = {};
 			SETDEX_RBY[pokemon][moveset] = customsets[pokemon][moveset];
 			var poke = {name: pokemon, nameProp: moveset};
+			var domId = pokemon + moveset;
+			var preserveInBox2 = !!box2Ids[String(domId)];
 			var useBox2 =
-				typeof megasBox2IsOn === "function" &&
-				megasBox2IsOn() &&
-				pokemon.indexOf("-Mega") !== -1;
+				preserveInBox2 ||
+				(typeof megasBox2IsOn === "function" &&
+					megasBox2IsOn() &&
+					pokemon.indexOf("-Mega") !== -1);
 			addBoxed(poke, useBox2 ? "box-poke-list2" : undefined);
 		}
 	}
 	localStorage.customsets = JSON.stringify(customsets);
+	if (typeof queueBox2SetIdsSync === "function") queueBox2SetIdsSync();
 }
 
 function addSets(pokes, name) {
@@ -700,6 +705,11 @@ $("#clearSets").click(function () {
 		return
 	}
 	localStorage.removeItem("customsets");
+	if (typeof STORAGE_BOX2_SET_IDS !== "undefined") {
+		localStorage.removeItem(STORAGE_BOX2_SET_IDS);
+	} else {
+		localStorage.removeItem("nullcalc_box2SetIds");
+	}
 	$(allPokemon("#importedSetsOptions")).hide();
 	loadDefaultLists();
 	for (let zone of document.getElementsByClassName("dropzone")){
