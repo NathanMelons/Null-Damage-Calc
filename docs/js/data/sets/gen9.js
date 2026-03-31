@@ -10500,7 +10500,7 @@ var SETDEX_SV = {
     },
     "Lilycove Rival Chespin": {
       "level": 80,
-      "ability": "Adaptability",
+      "ability": "Steadfast",
       "moves": [
         "Nasty Plot",
         "Focus Blast",
@@ -10513,7 +10513,7 @@ var SETDEX_SV = {
     },
     "Lilycove Rival Fennekin": {
       "level": 80,
-      "ability": "Adaptability",
+      "ability": "Steadfast",
       "moves": [
         "Swords Dance",
         "Close Combat",
@@ -10526,7 +10526,7 @@ var SETDEX_SV = {
     },
     "Lilycove Rival Froakie": {
       "level": 80,
-      "ability": "Adaptability",
+      "ability": "Steadfast",
       "moves": [
         "Nasty Plot",
         "Focus Blast",
