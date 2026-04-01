@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      window.__DEX_ROOT = new URL("./", window.location.href).pathname;
+    </script>
+    <script>
+      (function () {
+        var lastTheme = null;
+        function readHostTheme() {
+          var theme = "original";
+          try {
+            var saved = localStorage.getItem("theme");
+            if (saved === "light" || saved === "dark" || saved === "original") {
+              theme = saved;
+            }
+          } catch (e) {}
+          if (theme !== lastTheme) {
+            lastTheme = theme;
+            document.documentElement.setAttribute("data-host-theme", theme);
+          }
+        }
+        readHostTheme();
+        setInterval(readHostTheme, 250);
+        window.addEventListener("storage", function (event) {
+          if (!event || event.key === "theme" || event.key === null) {
+            readHostTheme();
+          }
+        });
+      })();
+    </script>
+    <title>Pok&eacute;dex - Pok&eacute;mon Showdown</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE8" />
+    <link rel="stylesheet" href="vendor/play-ps/font-awesome.css" />
+    <link rel="stylesheet" href="theme/panels.css?b1" />
+    <link rel="stylesheet" href="theme/main.css?b1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="vendor/play-ps/utilichart.css" />
+    <link rel="stylesheet" href="theme/pokedex.css?b359" />
+    <link rel="stylesheet" href="theme/embed-theme.css" />
+    <!--[if lte IE 6]><style> li.tree { height: 1px; } </style><![endif]-->
+    <!--[if IE 7]><style> li.tree { zoom: 1; } </style><![endif]-->
+  </head>
+  <body>
+    <div class="pfx-panel">
+      <div class="pfx-body">
+        <noscript>
+          <p><strong>Requires JavaScript!</strong></p>
+        </noscript>
+        <p>Loading...</p>
+      </div>
+    </div>
+    <script src="js/lib/jquery-1.12.4.min.js"></script>
+    <script src="js/lib/lodash.min.js"></script>
+    <script src="js/lib/backbone-min.js"></script>
+    <script src="js/panels.js"></script>
+    <script src="config/config.js?v0.9xy31"></script>
+    <script src="js/battledata.js?v0.9xy31"></script>
+    <script src="js/dex-vendor-assets.js?v0.9xy31"></script>
+    <script src="js/battle-sprite.js?v0.9xy31"></script>
+    <script src="js/calc-icon.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/search-index.js?v0.9xy31"></script>
+    <script src="vendor/play-ps/teambuilder-tables.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/typechart.js?v0.9xy31"></script>
+    <script src="vendor/play-ps/aliases.js?v0.9xy31"></script>
+    <script src="js/battle-dex-search.js?v0.9xy31"></script>
+    <script src="js/search.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/species.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/learnsets.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/encounters.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/moves.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/abilities.js?v0.9xy31"></script>
+    <script src="../../nulldex-main/nulldex-main/data/items.js?v0.9xy31"></script>
+    <script src="js/pokedex.js?b359"></script>
+    <script src="js/pokedex-pokemon.js?b359"></script>
+    <script src="js/pokedex-moves.js?b359"></script>
+    <script src="js/pokedex-encounters.js?b359"></script>
+    <script src="js/pokedex-search.js?b359"></script>
+    <script src="js/router.js?b359"></script>
+  </body>
+</html>
