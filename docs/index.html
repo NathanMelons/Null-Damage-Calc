@@ -108,8 +108,11 @@
             </label>
         </div>
     </div>
-
     <span class="title-text">Pok&eacute;mon Null Damage Calculator</span>
+    <div class="app-header-tabs" aria-label="Calculator navigation" role="group">
+        <button type="button" class="btn btn-small app-header-tab" id="header-calc-button">Calculator</button>
+        <button type="button" class="btn btn-small app-header-tab" id="header-dex-button">Pok&eacute;dex</button>
+    </div>
 
     <div class="app-top-offset" aria-label="Generation and display options" role="region">
         <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation.">
@@ -130,6 +133,11 @@
         </span>
     </div>
     </div>
+
+    <main id="dex-subpage" class="app-dex-subpage" hidden aria-hidden="true" aria-label="Pok&eacute;dex">
+        <iframe id="porydex-frame" class="app-dex-iframe" title="Pok&eacute;dex" src="./porydex/index.html"></iframe>
+    </main>
+
     <div aria-label="Move selection" class="move-result-group" role="region" title="Select a move to show detailed results.">
         <div  aria-labelledby="resultHeaderL" class="move-result-subgroup" role="radiogroup">
             <div class="result-move-header"><span id="resultHeaderL">Pok&eacute;mon 1's Moves (select one to show detailed results)</span>
@@ -1953,6 +1961,109 @@
     <script type="text/javascript" src="./js/icons_preload.js?"></script>
     <script type="text/javascript" src="./js/index_randoms_controls.js?"></script>
     <script type="text/javascript" src="./js/moveset_import.js?"></script>
+    <script type="text/javascript">
+        (function () {
+            var calcButton = document.getElementById("header-calc-button");
+            var dexButton = document.getElementById("header-dex-button");
+            var dexPage = document.getElementById("dex-subpage");
+            var dexFrame = document.getElementById("porydex-frame");
+            if (!calcButton || !dexButton || !dexPage || !dexFrame) return;
+
+            var lastAppMode = null;
+            var headerBar = document.querySelector(".app-header-bar");
+
+            function syncDexTheme() {
+                try {
+                    var frameDoc = dexFrame.contentDocument;
+                    if (!frameDoc || !frameDoc.documentElement) return;
+                    var theme = document.documentElement.getAttribute("data-theme") || "original";
+                    frameDoc.documentElement.setAttribute("data-host-theme", theme);
+                } catch (e) {}
+            }
+
+            function syncDexLayoutVars() {
+                try {
+                    if (!headerBar) return;
+                    var h = headerBar.offsetHeight || 0;
+                    if (h) document.documentElement.style.setProperty("--app-header-bar-height", h + "px");
+                } catch (e) {}
+            }
+
+            function setMode(mode) {
+                var isDex = mode === "dex";
+                var comingFromDex = lastAppMode === "dex";
+                lastAppMode = mode;
+                document.body.classList.toggle("dex-mode", isDex);
+                dexPage.hidden = !isDex;
+                dexPage.setAttribute("aria-hidden", isDex ? "false" : "true");
+                calcButton.classList.toggle("app-header-tab-active", !isDex);
+                dexButton.classList.toggle("app-header-tab-active", isDex);
+                syncDexLayoutVars();
+                if (!isDex && comingFromDex) {
+                    requestAnimationFrame(function () {
+                        requestAnimationFrame(function () {
+                            var $ = window.jQuery;
+                            if (!$ || !$.fn || !$.fn.select2) return;
+                            var setValues = [];
+                            var moveValues = [];
+                            $(".set-selector").each(function () {
+                                setValues.push($(this).val());
+                                try { $(this).select2("destroy"); } catch (e) {}
+                            });
+                            $(".move-selector").each(function () {
+                                moveValues.push($(this).val());
+                                try { $(this).select2("destroy"); } catch (e) {}
+                            });
+                            if (typeof loadDefaultLists === "function") loadDefaultLists();
+                            $(".move-selector").select2({
+                                dropdownAutoWidth: true,
+                                matcher: function (term, text) {
+                                    return text.toUpperCase().indexOf(term.toUpperCase()) === 0 || text.toUpperCase().indexOf(" " + term.toUpperCase()) >= 0;
+                                }
+                            });
+                            $(".set-selector").each(function (i) {
+                                if (setValues[i] !== undefined && setValues[i] !== null) $(this).val(setValues[i]).trigger("change");
+                            });
+                            $(".move-selector").each(function (i) {
+                                if (moveValues[i] !== undefined && moveValues[i] !== null) $(this).val(moveValues[i]).trigger("change");
+                            });
+                            $(window).trigger("resize");
+                        });
+                    });
+                }
+            }
+
+            calcButton.addEventListener("click", function () {
+                history.replaceState(null, "", location.pathname + location.search);
+                setMode("calc");
+            });
+            dexButton.addEventListener("click", function () {
+                if (location.hash !== "#dex") {
+                    location.hash = "dex";
+                } else {
+                    setMode("dex");
+                }
+            });
+
+            window.addEventListener("hashchange", function () {
+                setMode(location.hash === "#dex" ? "dex" : "calc");
+            });
+            dexFrame.addEventListener("load", syncDexTheme);
+            new MutationObserver(syncDexTheme).observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ["data-theme", "class"]
+            });
+            window.addEventListener("resize", syncDexLayoutVars);
+
+            setMode(location.hash === "#dex" ? "dex" : "calc");
+            syncDexTheme();
+            syncDexLayoutVars();
+            requestAnimationFrame(function () {
+                if (window.jQuery) window.jQuery(window).trigger("resize");
+                else window.dispatchEvent(new Event("resize"));
+            });
+        })();
+    </script>
 </div>
 
 <div class="credits">Modification by ForwardFeed Originaly Created by Honko, maintained by Austin and Kris, Special thanks to Hzla
