@@ -553,6 +553,14 @@ body.dex-mode .app-header-bar {
     flex: 0 0 auto;
     line-height: 1.25;
 }
+.app-menu-mega-availability-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.app-menu-row--sub {
+    padding-left: 18px;
+    border-left: 3px solid rgba(255, 255, 255, 0.14);
+    margin-left: 4px;
+}
 .app-menu-toggle-row {
     display: flex;
     align-items: center;
@@ -716,6 +724,12 @@ html[data-theme="light"] .app-menu-row + .app-menu-row {
 }
 html[data-theme="light"] .app-menu-row-label {
     color: #1a1a1a;
+}
+html[data-theme="light"] .app-menu-mega-availability-section {
+    border-top-color: rgba(0, 0, 0, 0.08);
+}
+html[data-theme="light"] .app-menu-row--sub {
+    border-left-color: rgba(0, 0, 0, 0.12);
 }
 html[data-theme="light"] .app-menu-toggle-row {
     color: #1a1a1a;

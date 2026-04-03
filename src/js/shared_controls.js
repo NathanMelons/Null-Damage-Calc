@@ -612,6 +612,53 @@ function importMegasAutoIsOn() {
 	return typeof getImportMegasAuto === "function" && getImportMegasAuto();
 }
 
+var STORAGE_ONLY_IMPORT_AVAILABLE_MEGAS = "nullcalc_onlyImportAvailableMegas";
+
+function getOnlyImportAvailableMegas() {
+	try {
+		var v = localStorage.getItem(STORAGE_ONLY_IMPORT_AVAILABLE_MEGAS);
+		if (v === null) return true;
+		return v === "true" || v === "1";
+	} catch (e) {
+		return true;
+	}
+}
+
+function setOnlyImportAvailableMegas(on) {
+	try {
+		localStorage.setItem(STORAGE_ONLY_IMPORT_AVAILABLE_MEGAS, on ? "true" : "false");
+	} catch (e) {}
+}
+
+function onlyImportAvailableMegasIsOn() {
+	var el = document.getElementById("only-import-available-megas");
+	if (el) return !!el.checked;
+	return typeof getOnlyImportAvailableMegas === "function" && getOnlyImportAvailableMegas();
+}
+
+/** Hardcoded map: js/data/mega_availability_levels.js (MEGA_AVAILABILITY_MIN_LEVELS). */
+function getMegaAvailabilityMinLevels() {
+	if (typeof MEGA_AVAILABILITY_MIN_LEVELS !== "undefined" && MEGA_AVAILABILITY_MIN_LEVELS && typeof MEGA_AVAILABILITY_MIN_LEVELS === "object") {
+		return MEGA_AVAILABILITY_MIN_LEVELS;
+	}
+	return {};
+}
+
+/**
+ * When "Only Import Available Megas" is on, listed megas require base level >= threshold.
+ * Megas not listed are still imported (no extra level gate).
+ */
+function shouldImportMegaAtLevel(megaSpeciesName, baseLevel) {
+	if (!onlyImportAvailableMegasIsOn()) return true;
+	var map = getMegaAvailabilityMinLevels();
+	if (!map || !megaSpeciesName || !Object.prototype.hasOwnProperty.call(map, megaSpeciesName)) return true;
+	var min = map[megaSpeciesName];
+	if (typeof min !== "number" || isNaN(min)) return true;
+	var lv = typeof baseLevel === "number" ? baseLevel : parseInt(baseLevel, 10);
+	if (isNaN(lv)) return false;
+	return lv >= min;
+}
+
 var STORAGE_MEGAS_BOX2 = "nullcalc_megasBox2";
 
 function getMegasBox2() {
@@ -3732,12 +3779,26 @@ $(document).ready(function () {
 		);
 	}
 	var importMegasAutoCb = document.getElementById("import-megas-auto");
+	var megaAvailabilitySection = document.getElementById("mega-availability-section");
+	var onlyImportAvailMegasCb = document.getElementById("only-import-available-megas");
+	function syncMegaAvailabilitySectionVisibility() {
+		if (!megaAvailabilitySection || !importMegasAutoCb) return;
+		megaAvailabilitySection.hidden = !importMegasAutoCb.checked;
+	}
 	if (importMegasAutoCb) {
 		importMegasAutoCb.checked = getImportMegasAuto();
 		importMegasAutoCb.addEventListener("change", function () {
 			setImportMegasAuto(importMegasAutoCb.checked);
+			syncMegaAvailabilitySectionVisibility();
 		});
 	}
+	if (onlyImportAvailMegasCb) {
+		onlyImportAvailMegasCb.checked = getOnlyImportAvailableMegas();
+		onlyImportAvailMegasCb.addEventListener("change", function () {
+			setOnlyImportAvailableMegas(onlyImportAvailMegasCb.checked);
+		});
+	}
+	syncMegaAvailabilitySectionVisibility();
 	var megasBox2Cb = document.getElementById("megas-box2-toggle");
 	if (megasBox2Cb) {
 		megasBox2Cb.checked = getMegasBox2();

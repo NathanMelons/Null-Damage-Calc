@@ -198,8 +198,10 @@ function appendMegaExportsForPokemon(basePokemon) {
 	var megas = getMegaOtherFormeSpeciesNames(basePokemon.name);
 	if (megas.length === 0) return "";
 	var parts = [];
+	var baseLv = basePokemon && typeof basePokemon.level !== "undefined" ? basePokemon.level : 100;
 	for (var m = 0; m < megas.length; m++) {
 		var megaName = megas[m];
+		if (typeof shouldImportMegaAtLevel === "function" && !shouldImportMegaAtLevel(megaName, baseLv)) continue;
 		try {
 			var megaMon = buildMegaPokemonFromBasePokemon(basePokemon, megaName);
 			if (megaMon) parts.push(pokemonToExportText(megaMon));
@@ -217,8 +219,10 @@ function appendMegaSavesForSpecies(basePoke) {
 	if ($("#randoms").prop("checked")) return;
 	if (!basePoke || !basePoke.name) return;
 	var megas = getMegaOtherFormeSpeciesNames(basePoke.name);
+	var baseLv = basePoke && typeof basePoke.level !== "undefined" ? basePoke.level : 100;
 	for (var m = 0; m < megas.length; m++) {
 		var megaName = megas[m];
+		if (typeof shouldImportMegaAtLevel === "function" && !shouldImportMegaAtLevel(megaName, baseLv)) continue;
 		var megaPoke = buildMegaSetObjFromBasePoke(basePoke, megaName);
 		if (megaPoke) {
 			addToDex(megaPoke);
