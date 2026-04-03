@@ -4252,7 +4252,7 @@ var SV_PATCH = {
         maxPower: 130,
         drain: [1, 2]
     },
-    'Blood Moon': { bp: 120, category: 'Special', type: 'Normal' },
+    'Blood Moon': { bp: 140, category: 'Special', type: 'Normal' },
     'Burning Bulwark': { bp: 0, type: 'Fire', priority: 4 },
     'Ceaseless Edge': {
         bp: 65,
