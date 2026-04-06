@@ -342,7 +342,7 @@ export function calculateSMSSSV(
   }
 
   if (
-    (field.hasWeather('Harsh Sunshine') && move.hasType('Water')) ||
+    (field.hasWeather('Harsh Sunshine') && move.hasType('Water') && !move.named('Hydro Steam')) ||
     (field.hasWeather('Heavy Rain') && move.hasType('Fire'))
   ) {
     desc.weather = field.weather;
@@ -519,7 +519,8 @@ export function calculateSMSSSV(
   }
 
   if (
-    field.hasWeather('Sun') && move.named('Hydro Steam') && !attacker.hasItem('Utility Umbrella')
+    field.hasWeather('Sun', 'Harsh Sunshine') && move.named('Hydro Steam') &&
+    !attacker.hasItem('Utility Umbrella')
   ) {
     baseDamage = pokeRound(OF32(baseDamage * 6144) / 4096);
     desc.weather = field.weather;

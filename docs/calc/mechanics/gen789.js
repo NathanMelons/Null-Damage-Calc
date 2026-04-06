@@ -230,8 +230,8 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         (move.named('Poltergeist') && !defender.item)) {
         return result;
     }
-    if ((field.hasWeather('Harsh Sunshine') && move.hasType('Water')) ||
-        (field.hasWeather('Heavy Rain') && move.hasType('Fire'))) {
+    if (((field.hasWeather('Harsh Sunshine') && move.hasType('Water') && !move.named('Hydro Steam')) ||
+        (field.hasWeather('Heavy Rain') && move.hasType('Fire')))) {
         desc.weather = field.weather;
         return result;
     }
@@ -363,7 +363,7 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
     if (attacker.hasAbility('Parental Bond (Child)')) {
         baseDamage = (0, util_2.pokeRound)((0, util_2.OF32)(baseDamage * 1024) / 4096);
     }
-    if (field.hasWeather('Sun') && move.named('Hydro Steam') && !attacker.hasItem('Utility Umbrella')) {
+    if (field.hasWeather('Sun', 'Harsh Sunshine') && move.named('Hydro Steam') && !attacker.hasItem('Utility Umbrella')) {
         baseDamage = (0, util_2.pokeRound)((0, util_2.OF32)(baseDamage * 6144) / 4096);
         desc.weather = field.weather;
     }

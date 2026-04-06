@@ -149,8 +149,8 @@ function calculateBWXY(gen, attacker, defender, move, field) {
         (move.named('Dream Eater') && !defender.hasStatus('slp'))) {
         return result;
     }
-    if ((field.hasWeather('Harsh Sunshine') && move.hasType('Water')) ||
-        (field.hasWeather('Heavy Rain') && move.hasType('Fire'))) {
+    if (((field.hasWeather('Harsh Sunshine') && move.hasType('Water') && !move.named('Hydro Steam')) ||
+        (field.hasWeather('Heavy Rain') && move.hasType('Fire')))) {
         desc.weather = field.weather;
         return result;
     }

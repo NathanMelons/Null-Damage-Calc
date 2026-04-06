@@ -207,7 +207,7 @@ export function calculateBWXY(
   }
 
   if (
-    (field.hasWeather('Harsh Sunshine') && move.hasType('Water')) ||
+    (field.hasWeather('Harsh Sunshine') && move.hasType('Water') && !move.named('Hydro Steam')) ||
     (field.hasWeather('Heavy Rain') && move.hasType('Fire'))
   ) {
     desc.weather = field.weather;

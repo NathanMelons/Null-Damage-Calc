@@ -342,7 +342,7 @@ function autosetQP(pokemon) {
 	if (!boostedStat || boostedStat === "auto") {
 		if (
 			(item === "Booster Energy") ||
-			(ability === "Protosynthesis" && currentWeather === "Sun") ||
+			(ability === "Protosynthesis" && (currentWeather === "Sun" || currentWeather === "Harsh Sunshine")) ||
 			(ability === "Quark Drive" && currentTerrain === "Electric")
 		) {
 			pokemon.find(".boostedStat").val("auto");
