@@ -31498,7 +31498,7 @@ var SETDEX_SV = {
   "Magearna-Mega": {
     "Team Rocket Grunt #3": {
       "level": 96,
-      "ability": "Filter",
+      "ability": "Simple",
       "moves": [
         "Gear Grind",
         "Play Rough",
