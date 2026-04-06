@@ -31553,7 +31553,7 @@ var SETDEX_SV = {
       "index": 1984
     }
   },
-  "Floette-Eternal-Mega": {
+  "Floette-Mega": {
     "Cooltrainer Yoru": {
       "level": 96,
       "ability": "Fairy Aura",
