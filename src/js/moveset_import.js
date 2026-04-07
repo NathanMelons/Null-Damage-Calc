@@ -384,17 +384,29 @@ function removeCurrentSetFromBox(panelId) {
 	if (poke.name === "Aegislash-Blade") {
 		deleteMovesetFromAllSetdex("Aegislash-Shield", poke.nameProp);
 	}
-	function removeBoxDom(idSuffix) {
+	function removeSetDom(idSuffix) {
+		var dataId = idSuffix;
+		if (idSuffix && idSuffix.indexOf(" (") === -1) {
+			var marker = idSuffix.indexOf("(");
+			if (marker !== -1) dataId = idSuffix.slice(0, marker);
+		}
 		var el = document.getElementById(idSuffix);
-		if (el && el.closest && (el.closest("#box-poke-list") || el.closest("#box-poke-list2"))) {
+		if (el && el.closest && (el.closest("#box-poke-list") || el.closest("#box-poke-list2") || el.closest("#team-poke-list"))) {
 			el.remove();
 		}
 		el = document.getElementById("box-" + idSuffix);
 		if (el) el.remove();
+		if (dataId) {
+			$("#box-poke-list .trainer-pok, #box-poke-list2 .trainer-pok, #team-poke-list .trainer-pok").each(function () {
+				if (String($(this).attr("data-id") || "") === dataId) $(this).remove();
+			});
+		}
 	}
-	removeBoxDom(poke.name + poke.nameProp);
+	removeSetDom(poke.name + poke.nameProp);
+	removeSetDom(poke.name + " (" + poke.nameProp + ")");
 	if (poke.name === "Aegislash-Blade") {
-		removeBoxDom("Aegislash-Shield" + poke.nameProp);
+		removeSetDom("Aegislash-Shield" + poke.nameProp);
+		removeSetDom("Aegislash-Shield (" + poke.nameProp + ")");
 	}
 	localStorage.customsets = JSON.stringify(customsets);
 	return true;
