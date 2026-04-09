@@ -1595,6 +1595,8 @@ html.icon-size-small .trainer-pok {
     object-fit: contain;
     object-position: center center;
     margin: 0 10px 0 0;
+    /* Downscaling with nearest-neighbor makes small icons look overly blocky. */
+    image-rendering: auto;
 }
 html.icon-size-small .trainer-pok.trainer-gap-slot {
     width: 10px;
@@ -1613,6 +1615,7 @@ html.icon-size-small .tag-partner-poke-list .tag-partner-pok {
     margin: 0 10px 0 0;
     object-fit: contain;
     border-radius: min(6px, calc(var(--box-icon-size, 64px) * 0.12));
+    image-rendering: auto;
 }
 /* Small icons only: nudge Team / Box / opposing trainer rows slightly right */
 html.icon-size-small #team-poke-list,
